@@ -197,20 +197,25 @@ def get_score(word):
 
 def first_round(wc, hand_counter):
     words = [word for word in all_words if subanagram(word, wc, hand_counter)]
+    words_with_wc = [[(word, ch) for ch in word if word.count(ch) > hand_wc.count(ch)] for word in words]
+    words_with_wc = [item for sublist in words_with_wc for item in sublist]
+    words = replace_wc(words, words_with_wc, wc)
 
-    w_n_p_4 = [(word, sum(LETTERS[letter][1] for letter in word))
+
+    w_n_p_4 = [(word, sum(LETTERS[letter][1] for i, letter in enumerate(word) if i < len(word) - 1 and word[i+1] != '.' ))
                for word in words if len(word) <= 4]
 
-    w_n_p_5_6 = [(word, sum(LETTERS[letter][1] for letter in word)) * 2
+    w_n_p_5_6 = [(word, sum(LETTERS[letter][1] for i, letter in enumerate(word) if i < len(word) - 1  and word[i+1] != '.' )) * 2
                  for word in words if len(word) in (5, 6)]
 
-    w_n_p_7 = [(word, sum(LETTERS[letter][1] for letter in word) * 2 + 35)
+    w_n_p_7 = [(word, sum(LETTERS[letter][1] for i, letter in enumerate(word) if i < len(word) - 1 and word[i+1] != '.' ) * 2 + 35)
                for word in words if len(word) == 7]
 
     w_n_p = w_n_p_4 + w_n_p_5_6 + w_n_p_7
+
     w_n_p.sort(key=lambda x: x[1], reverse=True)
 
-    print(w_n_p)
+    print('Top 10 options', w_n_p[0:10])
     print('\n' + 'BEST OPTION: ', str(w_n_p[0]) + '\n')
     return w_n_p[0]
 
@@ -285,7 +290,7 @@ list_board = [
 ]
 board = Board(list_board)
 
-go_first = False
+go_first = True
 
 # hand = 'eetnboi'
 board.display()
@@ -305,15 +310,6 @@ if go_first:
     op_placed = input('opponent_placed e.g. \'word\', True, 1, 2: ')
     eval('board.place({})'.format(op_placed))
     board.display()
-
-board.place('fraises', True, 2, 6)
-board.place('feaze', False, 2, 6)
-board.place('doxies', True, 2, 11)
-board.place('chukars', False, 3, 1)
-board.place('izar', True, 1, 9)
-board.place('joule', True, 1, 3)
-board.place('thebe.', True, 2, 2)
-board.place('divan', True, 6, 10)
 
 board.display()
 
