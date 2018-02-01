@@ -1,0 +1,21 @@
+Pre 1st Feb:
+    Created a viable functioning program without reading other peoples solutions
+
+1st Feb:
+
+2 second, 750kb solver
+    http://www.gtoal.com/wordgames/jacobson+appel/aj.pdf
+
+
+Will attempt to implement this solution as follows:
+    1. dawg data structure
+     a) start with trie [DONE]
+     b) reduce using hopcrofts algorithm
+    2. anchor squares
+    3. cross checks and cross scores
+    4. backtracking algorithm
+    5. score calculation
+    6. account for wildcards
+
+Whilst implementing this solution I will attempt to take a much more Object
+Orientated approach.
