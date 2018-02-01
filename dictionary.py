@@ -8,7 +8,7 @@ length.sort(key=lambda x:x[1], reverse=True)
 
 print(length[0])
 
-new_dict = [x for x in all_words if len(x)<= 11]
+build_dcit = [x for x in all_words if len(x)<= 11]
 #
 # with open('dict_2.txt', 'w') as f:
 #     for item in new_dict:
