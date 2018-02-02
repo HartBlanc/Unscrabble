@@ -2,12 +2,12 @@
 from trie import my_trie
 
 LETTERS = {
-    'a': (9, 1), 'b': (2, 4), '.': (2, 0), 'c': (2, 4), 'd': (5, 2),
+    '.': (2, 0), 'a': (9, 1), 'b': (2, 4), 'c': (2, 4), 'd': (5, 2),
     'e': (13, 1), 'f': (2, 4), 'g': (3, 3), 'h': (4, 3), 'i': (8, 1),
     'j': (1, 10), 'k': (1, 5), 'l': (4, 2), 'm': (2, 4), 'n': (5, 2),
     'o': (8, 1), 'p': (2, 4), 'q': (1, 10), 'r': (6, 1), 's': (5, 1),
     't': (7, 1), 'u': (4, 2), 'v': (2, 5), 'w': (2, 4), 'x': (1, 8),
-    'y': (2, 3), 'z': (1, 10),
+    'y': (2, 3), 'z': (1, 10)
     # 'a.': (9, 0), 'b.': (2, 4), 'c.': (2, 4), 'd.': (5, 2),
     # 'e.': (13, 1), 'f.': (2, 4), 'g.': (3, 3), 'h.': (4, 3), 'i.': (8, 1),
     # 'j.': (1, 10), 'k.': (1, 5), 'l.': (4, 2), 'm.': (2, 4), 'n.': (5, 2),
@@ -40,11 +40,32 @@ class Square:
         self.below = None
         self.adjacents = tuple()
         self.real_adjacents = tuple()
+        self.legal_moves = set()
 
+    def LeftPart(self, PartialWord, N, limit, hand):
+        self.ExtendRight(PartialWord, N, self, hand, limit)
+        if limit > 0:
+            valid_chars = hand.intersection(self.cross_set)
+            adj_nodes = N.next_nodes
+            for char in set(adj_nodes.keys()).intersection(valid_chars):
+                self.LeftPart(PartialWord + char, adj_nodes[char], limit - 1, hand - set(char))
 
-
-
-
+    def ExtendRight(self, PartialWord, N, sq, hand, limit):
+        adj_nodes = N.next_nodes
+        if sq is None:
+            return
+        if sq.empty:
+            if N.terminal:
+                self.legal_moves.add((PartialWord, limit + 1, self.y))
+            valid_chars = hand.intersection(self.cross_set)
+            pruned = set(adj_nodes.keys()).intersection(valid_chars)
+            for char in pruned:
+                self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right, hand - set(char), limit)
+        else:
+            char = sq.value
+            if char in adj_nodes:
+                ## hand stays the same
+                self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right, hand, limit)
 
 
     def word_multiplier(self):
