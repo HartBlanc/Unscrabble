@@ -2,6 +2,9 @@ import re
 from collections import Counter
 from Board import Board, LETTERS, all_words
 from itertools import combinations
+from trie import my_trie
+from functools import reduce
+from operator import mul
 # import pickle
 # from datetime import datetime
 
@@ -9,190 +12,6 @@ from itertools import combinations
 #     str1_counter, str2_counter = Counter(str1), Counter(str2)
 #     return all(str1_counter[char] <= str2_counter[char]
 #                  for char in str1_counter)
-
-
-def subanagram(str1, wc, str2_counter):
-    str1_counter = Counter(str1)
-    counts = [str1_counter[char] - str2_counter[char]
-              for char in str1_counter if str1_counter[char] - str2_counter[char] > 0]
-    if sum(counts) > wc:
-        return False
-    else:
-        return True
-
-
-def letter_or_hand(word, size, line, hand):
-    size = seg[1] - seg[0]
-    start = seg[0]
-    if len(word) > size:
-        return False
-    for i in range(size):
-        if line[start + i] == '_' and word[i] not in hand:
-            return False
-        elif line[start + i] != '_' and word[i] != line[start + i]:
-            return False
-    return True
-
-
-def add_adj(listy):
-    combos = []
-    if len(listy) == 1:
-        return listy
-    copy = list(listy)
-    while True:
-        combos = []
-        for i, segment in enumerate(copy):
-            if i > 0:
-                combos.append((listy[i - 1][0], segment[1]))
-        listy += combos
-        copy = combos
-        if len(combos) == 1:
-            return listy
-
-
-def get_chunk_lengths(listy):
-    prev = listy[0]
-    current = 1
-    lengths = []
-    for blank in listy[1:]:
-        if prev == blank - 1:
-            current += 1
-        else:
-            lengths.append(current)
-            current = 1
-        prev = blank
-    lengths.append(current)
-    return lengths
-
-
-def get_segments(word):
-    if word == '_' * 11:
-        return [(0, 0)]
-    sandwich = False
-    start = 0
-    segments = []
-    for i, letter in enumerate(word):
-        if letter != '_':
-            first_end = i
-            last_letter = i
-            break
-    end = first_end
-    for i, letter in enumerate(word):
-        if i <= first_end:
-            continue
-        if letter != '_':
-            if not sandwich:
-                end += 1
-            last_letter = i
-            if i == len(word) - 1:
-                end = i
-                segments.append((start, end))
-        else:
-            if i == len(word) - 1:
-                end += 1
-                segments.append((start, end))
-                continue
-            if word[i + 1] != '_':
-                segments.append((start, end))
-                if word[i - 1] != '_':
-                    sandwich = True
-                    start = last_letter + 2
-                    end = start
-                else:
-                    start = last_letter + 2
-                    end += 1
-            else:
-                end += 1
-    return(add_adj(segments))
-
-
-def first_letter(word):
-    for i, letter in enumerate(word):
-        if letter != '_':
-            return i
-
-
-def block(word):
-    blocks = []
-    block = word[0]
-    prev_ = False
-    if block == '_':
-        prev_ = True
-    for i, letter in enumerate(word):
-        if i == 0:
-            continue
-        if prev_ and letter == '_':
-            block += letter
-        if prev_ and letter != '_':
-            if len(word) == 2:
-                block += letter
-            blocks.append(block)
-            block = letter
-            if i == len(word) - 1:
-                blocks.append(block)
-            prev_ = False
-            continue
-        if not prev_ and letter == '_':
-            blocks.append(block)
-            block = letter
-            if i == len(word) - 1:
-                blocks.append(block)
-            prev_ = True
-            continue
-        if not prev_ and letter != '_':
-            block += letter
-        if i == len(word) - 1:
-            blocks.append(block)
-    return blocks
-
-
-def build_reg(seg_block):
-    reg = ''
-    for i, block in enumerate(seg_block):
-
-        if i == 0:
-            for letter in block:
-                if letter != '_':
-                    reg += letter
-            continue
-        elif block[0] == '_':
-            reg += '{hand}' * len(block)
-        else:
-            reg += block
-
-    while True:
-        if reg[-6:] == '{hand}':
-            reg = reg[:-6]
-        else:
-            break
-    reg = '(?=' + reg + ')'
-    return reg
-
-
-def blank_counter(word):
-    num = 0
-    for letter in word:
-        if letter == '_':
-            num += 1
-        else:
-            return num
-
-
-def rev_counter(word):
-    num = 0
-    for letter in word[::-1]:
-        if letter == '_':
-            num += 1
-        else:
-            return num
-
-
-def get_score(word):
-    score = 0
-    for letter in word:
-        value = LETTERS[letter][1]
-        score += value
-    return score
 
 
 def first_round(wc, hand_counter):
@@ -218,21 +37,6 @@ def first_round(wc, hand_counter):
     print('Top 10 options', w_n_p[0:10])
     print('\n' + 'BEST OPTION: ', str(w_n_p[0]) + '\n')
     return w_n_p[0]
-
-
-def place_split(word):
-    listy = []
-    if '.' in word:
-        for i, letter in enumerate(word):
-            if letter == '.':
-                continue
-            if i < len(word) - 1:
-                if word[i + 1] == '.':
-                    letter += '.'
-            listy.append(letter)
-    else:
-        listy = list(word)
-    return listy
 
 
 def replace_wc(listy_1, listy_2, wc):
@@ -290,7 +94,7 @@ list_board = [
 ]
 board = Board(list_board)
 
-go_first = True
+go_first = False
 
 # hand = 'eetnboi'
 board.display()
@@ -310,8 +114,46 @@ if go_first:
     op_placed = input('opponent_placed e.g. \'word\', True, 1, 2: ')
     eval('board.place({})'.format(op_placed))
     board.display()
-
+# board.place('fraises', True, 2, 6)
+# board.place('feaze', False, 2, 6)
+# board.place('doxies', True, 2, 11)
+# board.place('chukars', False, 3, 1)
+# board.place('izar', True, 1, 9)
+# board.place('joule', True, 1, 3)
+# board.place('thebe.', True, 2, 2)
+# board.place('divan', True, 6, 10)
+board.place('cat', True, 6, 5)
 board.display()
+
+def score(entry):
+    word = entry[0]
+    x = entry[1]
+    y = entry[2]
+    sq_list = [board.get_square(x + i, y) for i in range(0, len(word))]
+    hm = reduce(mul, [sq.wm for sq in sq_list], 1)
+    cross_score = sum([sq.wm * (sq.cross_score + LETTERS[word[sq.x - x - 1]][1] * sq.lm) for sq in sq_list if sq.empty])
+    hori_score = hm * sum([LETTERS[word[sq.x - x - 1]][1] * sq.lm for sq in sq_list])
+    emptys = sum(1 for sq in sq_list if sq.empty)
+    score = cross_score + hori_score
+    if emptys == 7:
+        print('BINGO')
+        score += 35
+    return score
+
+all_plays = []
+anchors = board.get_anchors()
+for sq in board.get_anchors():
+    sq.LeftPart('', my_trie.Root, sq.x - 1, set(hand))
+    for x in sq.legal_moves:
+        if score(x) > 0:
+            all_plays.append((score(x), True, x))
+
+
+all_plays.sort(key=lambda x: x[0], reverse=True)
+print('Top ten plays: ', all_plays[0:10])
+
+best_play = all_plays[0]
+print('\n', 'BEST PLAY:', best_play, '\n')
 
 while True:
     combos = [[word for word in all_words if subanagram(word, wc, hand_counter) and len(word) == i] for i in range(2, 12)]
