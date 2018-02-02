@@ -17,14 +17,37 @@ LETTERS = {
     # 'y.': (2, 3), 'z.': (1, 10)
 }
 
-all_spans = [[(i, n + i) for i in range(1, 12 - n)] for n in range(1, 11)]
-flat_all_spans = [item for sublist in all_spans for item in sublist]
+# all_spans = [[(i, n + i) for i in range(1, 12 - n)] for n in range(1, 11)]
+# flat_all_spans = [item for sublist in all_spans for item in sublist]
 
 
 class Board:
     def __init__(self, build_list):
         self.build_squares(build_list)
         self.build_lines()
+        self.direction_relations()
+
+    def direction_relations(self):
+        for sq in self.squares:
+            sq.left = self.get_square(sq.x - 1, sq.y)
+            sq.right = self.get_square(sq.x + 1, sq.y)
+            sq.above = self.get_square(sq.x, sq.y - 1)
+            sq.below = self.get_square(sq.x, sq.y + 1)
+            sq.adjacent = (sq.right, sq.left, sq.above, sq.below)
+            sq.real_adjacent = tuple(filter(lambda x: x is not None, sq.adjacent))
+            sq.get_cross_set()
+
+    def get_anchors(self):
+        potential_anchors = [sq for sq in self.squares
+                                  if sq.empty
+                                  and any((not adj.empty for adj in sq.real_adjacent))
+                            ]
+        print([(sq.x, sq.y) for sq in potential_anchors])
+        rows = [[sq for sq in potential_anchors if sq.y == i] for i in range(1, self.N + 1)]
+        anchors = [min(row, key=lambda sq: sq.x, default=None) for row in rows]
+        anchors = [sq for sq in anchors if sq is not None]
+        print(anchors)
+        return anchors
 
     def build_lines(self):
         self.lines = []
@@ -32,7 +55,7 @@ class Board:
             line = ''
             for x in range(1, self.N + 1):
                 sq = self.get_square(x, y)
-                if sq.empty():
+                if sq.empty:
                     line += '_'
                 else:
                     line += sq.value
@@ -55,13 +78,26 @@ class Board:
         listy = place_split(word)
         if horizontal:
             for i, letter in enumerate(listy):
-                if self.get_square(x + i, y).empty():
-                    self.get_square(x + i, y).value = letter
+                sq = self.get_square(x + i, y)
+                if sq.empty:
+                    sq.value = letter
+                    sq.empty = False
+                    sq.wm = 1
+                    sq.lm = sq.letter_multiplier()
+                    for adj in sq.real_adjacents:
+                        adj.get_cross_set()
 
         else:
             for i, letter in enumerate(listy):
-                if self.get_square(x, y + i).empty():
-                    self.get_square(x, y + i).value = letter
+                sq = self.get_square(x, y + i)
+                if sq.empty:
+                    sq.value = letter
+                    sq.empty = False
+                    sq.wm = 1
+                    sq.lm = sq.letter_multiplier()
+                    for adj in sq.real_adjacents:
+                        adj.get_cross_set()
+
         self.build_lines()
 
     def display(self):
@@ -79,31 +115,31 @@ class Board:
         square = first_square
         if horizontal:
             sq_list = [self.get_square(square.x + i, square.y) for i in range(0, len(word))]
-            emptys = sum(1 for sq in sq_list if sq.empty())
-            wm = reduce(mul, [sq.word_multiplier() for sq in sq_list], 1)
-            lms = [sq.letter_multiplier() for sq in sq_list]
+            emptys = sum(1 for sq in sq_list if sq.empty)
+            wm = reduce(mul, [sq.wm for sq in sq_list], 1)
+            lms = [sq.lm for sq in sq_list]
             for i, letter in enumerate(word):
-                if sq_list[i].empty():
+                if sq_list[i].empty:
                     part_score = square.trial_place(letter, horizontal)
                     if part_score is None:
                         return False
                     else:
                         score += part_score
-                square = square.right()
+                square = square.right
             horizontal_score = wm * sum([LETTERS[letter[-1]][1] * lms[i] for i, letter in enumerate(word)])
             score += horizontal_score
         else:
             sq_list = [self.get_square(square.x, square.y + i) for i in range(0, len(word))]
-            emptys = sum(1 for sq in sq_list if sq.empty())
-            wm = reduce(mul, [sq.word_multiplier() for sq in sq_list], 1)
-            lms = [sq.letter_multiplier() for sq in sq_list]
+            emptys = sum(1 for sq in sq_list if sq.empty)
+            wm = reduce(mul, [sq.wm for sq in sq_list], 1)
+            lms = [sq.lm for sq in sq_list]
             for letter in word:
                 value = square.trial_place(letter, horizontal)
                 if value is None:
                     return False
                 else:
                     score += value
-                    square = square.below()
+                    square = square.below
             vertical_score = wm * sum([LETTERS[letter[-1]][1] * lms[i] for i, letter in enumerate(word)])
             score += vertical_score
         if emptys == 7:
@@ -122,38 +158,38 @@ class Board:
             first = self.get_square(1, place)
             above_range = []
             if place != 1:
-                above = first.above()
+                above = first.above
                 current = above
                 for i in range(0, self.N):
-                    if i == self.N - 1 and not current.empty():
+                    if i == self.N - 1 and not current.empty:
                             above_range.append(i + 1)
                             break
-                    if not current.empty():
+                    if not current.empty:
                         above_range.append(i + 1)
-                    current = current.right()
+                    current = current.right
             below_range = []
             if place != self.N:
-                current = first.below()
+                current = first.below
                 for i in range(0, self.N):
-                    if i == self.N - 1 and not current.empty():
+                    if i == self.N - 1 and not current.empty:
                             below_range.append(i + 1)
                             break
-                    if not current.empty():
+                    if not current.empty:
                         below_range.append(i + 1)
-                    current = current.right()
+                    current = current.right
             mid_range = []
             current = first
             for i in range(0, self.N):
                 if i == 0:
-                    if current.empty() and current.right().empty():
+                    if current.empty and current.right.empty:
                         mid_range.append(i + 1)
                 elif i == self.N - 1:
-                    if current.empty() and current.left().empty():
+                    if current.empty and current.left.empty:
                         mid_range.append(i + 1)
                 else:
-                    if current.empty() and current.left().empty() and current.right().empty():
+                    if current.empty and current.left.empty and current.right.empty:
                         mid_range.append(i + 1)
-                current = current.right()
+                current = current.right
             spans = []
             if mid_range:
                 start = mid_range[0]
@@ -181,40 +217,40 @@ class Board:
             first = self.get_square(place, 1)
             left_range = []
             if place != 1:
-                left = first.left()
+                left = first.left
                 current = left
                 for i in range(0, self.N):
-                    if i == self.N - 1 and not current.empty():
+                    if i == self.N - 1 and not current.empty:
                             left_range.append(i + 1)
                             break
-                    if not current.empty():
+                    if not current.empty:
                         left_range.append(i + 1)
-                    current = current.below()
+                    current = current.below
             right_range = []
             if place != self.N:
-                right = first.right()
+                right = first.right
                 current = right
                 for i in range(0, self.N):
-                    if i == self.N - 1 and not current.empty():
+                    if i == self.N - 1 and not current.empty:
                             right_range.append(i + 1)
                             break
-                    if not current.empty():
+                    if not current.empty:
                         right_range.append(i + 1)
-                    current = current.below()
+                    current = current.below
             mid_range = []
             current = first
             for i in range(0, self.N):
                 if i == 0:
-                    if current.empty() and current.below().empty():
+                    if current.empty and current.below.empty:
                         mid_range.append(i + 1)
                 elif i == self.N - 1:
-                    if current.empty() and current.above().empty():
+                    if current.empty and current.above.empty:
                         mid_range.append(i + 1)
                         break
                 else:
-                    if current.empty() and current.above().empty() and current.below().empty():
+                    if current.empty and current.above.empty and current.below.empty:
                         mid_range.append(i + 1)
-                current = current.below()
+                current = current.below
             spans = []
             if mid_range:
                 start = mid_range[0]
