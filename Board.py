@@ -84,8 +84,10 @@ class Board:
                     sq.empty = False
                     sq.wm = 1
                     sq.lm = sq.letter_multiplier()
-                    for adj in sq.real_adjacents:
-                        adj.get_cross_set()
+                    sq.above
+                    for adj in (sq.above, sq.below):
+                        if adj is not None:
+                            adj.get_cross_set()
 
         else:
             for i, letter in enumerate(listy):
