@@ -9,10 +9,10 @@ Pre 1st Feb:
 
 Will attempt to implement this solution as follows:
     1. dawg data structure
-     a) start with trie [DONE]
+     a) start with trie
      b) reduce using hopcrofts algorithm
-    2. anchor squares
-    3. cross checks and cross scores
+    2. anchor squares [DONE]
+    3. cross checks and cross scores [DONE]
     4. backtracking algorithm
     5. score calculation
     6. account for wildcards
