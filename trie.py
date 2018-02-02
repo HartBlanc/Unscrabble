@@ -20,6 +20,7 @@ class Trie:
                     Node = Node.next_nodes[char]
                 else:
                     Node.next_nodes[char] = TrieNode(Node.label + char, False)
+                    Node = Node.next_nodes[char]
             Node.terminal = True
 
 
