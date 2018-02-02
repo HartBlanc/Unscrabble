@@ -1,4 +1,5 @@
 # from Board import Board
+from trie import my_trie
 
 LETTERS = {
     'a': (9, 1), 'b': (2, 4), '.': (2, 0), 'c': (2, 4), 'd': (5, 2),
@@ -15,6 +16,8 @@ LETTERS = {
     # 'y.': (2, 3), 'z.': (1, 10)
 }
 
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
 with open('dict.txt') as f:
     content = f.readlines()
     all_words = [x.strip() for x in content]
@@ -27,34 +30,28 @@ class Square:
         self.x = x
         self.y = y
         self.board = board
-        self.adjacent = (self.right(), self.left(), self.above(), self.below())
+        self.empty = True
+        self.wm = self.word_multiplier()
+        self.lm = self.letter_multiplier()
+        self.cross_set = set()
+        self.left = None
+        self.right = None
+        self.above = None
+        self.below = None
+        self.adjacents = tuple()
+        self.real_adjacents = tuple()
 
-    def right(self):
-        return self.board.get_square(self.x + 1, self.y)
 
-    def left(self):
-        return self.board.get_square(self.x - 1, self.y)
 
-    def above(self):
-        return self.board.get_square(self.x, self.y - 1)
 
-    def below(self):
-        return self.board.get_square(self.x, self.y + 1)
 
-    def empty(self):
-        if self.value in ('_', 'TL', 'DL', 'TW', 'DW'):
-            return True
-        else:
-            return False
+
 
     def word_multiplier(self):
-        if self.empty():
-            if self.value == 'TW':
+        if self.value == 'TW':
                 return 3
-            elif self.value == 'DW':
-                return 2
-            else:
-                return 1
+        elif self.value == 'DW':
+            return 2
         else:
             return 1
 
@@ -70,64 +67,77 @@ class Square:
 
     def first_empty_right(self):
         current = self
-        right = current.right()
+        right = current.right
         while True:
-            if right is None or right.empty():
+            if right is None or right.empty:
                 return current
             else:
                 current = right
-                right = current.right()
+                right = current.right
 
     def first_empty_left(self):
         current = self
-        left = current.left()
+        left = current.left
         while True:
-            if left is None or left.empty():
+            if left is None or left.empty:
                 return current
             else:
                 current = left
-                left = current.left()
+                left = current.left
 
     def first_empty_above(self):
         current = self
-        above = current.above()
+        above = current.above
         while True:
-            if above is None or above.empty():
+            if above is None or above.empty:
                 return current
             else:
                 current = above
-                above = current.above()
+                above = current.above
 
     def first_empty_below(self):
         current = self
-        below = current.below()
+        below = current.below
         while True:
-            if below is None or below.empty():
+            if below is None or below.empty:
                 return current
             else:
                 current = below
-                below = current.below()
+                below = current.below
 
-    def vertical_range(self):
+    def get_cross_set(self):
         above = self.first_empty_above()
         below = self.first_empty_below()
-        max_y = below.y
+        if above == below == self:
+            self.cross_set = set(alphabet)
+            self.cross_score = 0
+            return
         min_y = above.y
-        vert_list = [self.board.get_square(self.x, y_val) for y_val in range(min_y, max_y + 1)]
-        return vert_list
+        max_y = below.y
+        sq_list_up = [self.board.get_square(self.x, y_val) for y_val in range(min_y, self.y)]
+        prefix = ''.join([sq.value for sq in sq_list_up])
+        sq_list_down = [self.board.get_square(self.x, y_val) for y_val in range(self.y + 1, max_y + 1)]
+        suffix = ''.join([sq.value for sq in sq_list_down])
+        word = '{}{}{}'
+        self.cross_set = {char for char in alphabet if my_trie.contains(word.format(prefix, char, suffix))}
+        self.cross_score = sum([LETTERS[letter][1] for letter in prefix + suffix])
 
-    def horizontal_range(self):
-        right = self.first_empty_right()
+    def get_placed_prefix(self):
         left = self.first_empty_left()
-        max_x = right.x
         min_x = left.x
-        hori_list = [self.board.get_square(x_val, self.y) for x_val in range(min_x, max_x + 1)]
-        return hori_list
+        sq_list = [self.board.get_square(x_val, self.y) for x_val in range(min_x, self.x)]
+        prefix = ''.join([sq.value for sq in sq_list])
+        return prefix
+
+    def get_placed_suffix(self):
+        right = self.first_empty_right()
+        max_x = right.x
+        sq_list = [self.board.get_square(x_val, self.y) for x_val in range(self.x + 1, max_x + 1)]
+        suffix = ''.join([sq.value for sq in sq_list])
+        return suffix
 
     def trial_place(self, letter, horizontal):
         initial_value = self.value
-        wm = self.word_multiplier()
-        lm = self.letter_multiplier()
         self.value = letter
         global all_words
         if horizontal:
@@ -135,7 +145,7 @@ class Square:
             if len(vert_list) > 1:
                 word = ''.join([sq.value[0] for sq in vert_list])
                 if word in all_words:
-                    vert_score = wm * (sum([LETTERS[sq.value[-1]][1] for sq in vert_list]) + LETTERS[self.value[-1]][1] * (lm - 1))
+                    vert_score = self.wm * (sum([LETTERS[sq.value[-1]][1] for sq in vert_list]) + LETTERS[self.value[-1]][1] * (self.lm - 1))
                     self.value = initial_value
                     return vert_score
                 else:
@@ -149,7 +159,7 @@ class Square:
         if len(hori_list) > 1:
             word = ''.join([sq.value[0] for sq in hori_list])
             if word in all_words:
-                hori_score = wm * (sum([LETTERS[sq.value[-1]][1] for sq in hori_list]) + LETTERS[self.value[-1]][1] * (lm - 1))
+                hori_score = self.wm * (sum([LETTERS[sq.value[-1]][1] for sq in hori_list]) + LETTERS[self.value[-1]][1] * (self.lm - 1))
                 self.value = initial_value
                 return hori_score
             else:
