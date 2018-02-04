@@ -18,10 +18,6 @@ LETTERS = {
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
-with open('dict.txt') as f:
-    content = f.readlines()
-    all_words = [x.strip() for x in content]
-
 
 class Square:
 
@@ -41,32 +37,92 @@ class Square:
         self.adjacents = tuple()
         self.real_adjacents = tuple()
         self.legal_moves = set()
+        self.anchor = False
 
-    def LeftPart(self, PartialWord, N, limit, hand):
-        self.ExtendRight(PartialWord, N, self, hand, limit)
+    def first_left_anchor(self):
+        current = self
+        left = current.left
+        while True:
+            if left is None:
+                return None
+            elif left.anchor:
+                return left
+            else:
+                current = left
+                left = current.left
+
+    def LeftPart(self, PartialWord, N, limit, rack, wcs):
+        adj_nodes = N.next_nodes
+        if self.left is not None and not self.left.empty:
+            prefix = self.get_placed_prefix()
+            for char in prefix:
+                N = adj_nodes[char]
+                adj_nodes = N.next_nodes
+            self.ExtendRight(prefix, N, self, len(prefix), rack, wcs, 0)
+            return
+        self.ExtendRight(PartialWord, N, self, limit, rack, wcs, 0)
         if limit > 0:
-            valid_chars = hand.intersection(self.cross_set)
-            adj_nodes = N.next_nodes
-            for char in set(adj_nodes.keys()).intersection(valid_chars):
-                self.LeftPart(PartialWord + char, adj_nodes[char], limit - 1, hand - set(char))
+            fla = self.first_left_anchor()
+            if fla is None:
+                current = limit + 1
+            else:
+                current = fla.x + limit
+            for char in adj_nodes:
+                if char in rack:
+                    rack.remove(char)
+                    self.LeftPart(PartialWord + char, adj_nodes[char],
+                                  limit - 1, rack, wcs)
+                    rack.append(char)
+                elif '.' in rack:
+                    rack.remove('.')
+                    wcs.append(current)
+                    self.LeftPart(PartialWord + char, adj_nodes[char],
+                                  limit - 1, rack, wcs)
+                    rack.append('.')
 
-    def ExtendRight(self, PartialWord, N, sq, hand, limit):
+    def ExtendRight(self, PartialWord, N, sq, limit, rack, wcs, i):
+        current = self.x + i
+        fla = self.first_left_anchor()
+        if fla is None:
+            start_x = limit + 1
+        else:
+            start_x = fla.x + limit + 1
+        if self.left is not None and not self.left.empty:
+            start_x = self.x - limit
         adj_nodes = N.next_nodes
         if sq is None:
             return
         if sq.empty:
-            if N.terminal:
-                self.legal_moves.add((PartialWord, limit + 1, self.y))
-            valid_chars = hand.intersection(self.cross_set)
-            pruned = set(adj_nodes.keys()).intersection(valid_chars)
-            for char in pruned:
-                self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right, hand - set(char), limit)
+            if N.terminal and sq != self:
+                if self.board.transposed:
+                    # print(PartialWord, 'Vetical', self.y, start_x)
+                    self.legal_moves.add((PartialWord, 'Vertical', self.y,
+                                          start_x, tuple(wcs)))
+                else:
+                    # print(PartialWord, self.x, self.y)
+                    # print('yes', PartialWord, 'Horizontal', start_x, self.y)
+                    self.legal_moves.add((PartialWord, 'Horizontal', start_x,
+                                          self.y, tuple(wcs)))
+            for char in adj_nodes:
+                # print(sq.cross_set, sq.x, sq.y)
+                if char in rack and char in sq.cross_set:
+                    rack.remove(char)
+                    self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right,
+                                 limit, rack, wcs, i + 1)
+                    rack.append(char)
+                elif '.' in rack:
+                    rack.remove('.')
+                    wcs.append(current)
+                    self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right,
+                                 limit, rack, wcs, i + 1)
+                    rack.append('.')
+
         else:
             char = sq.value
             if char in adj_nodes:
-                ## hand stays the same
-                self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right, hand, limit)
-
+                # rack stays the same
+                self.ExtendRight(PartialWord + char, adj_nodes[char],
+                                 sq.right, limit, rack, wcs, i + 1)
 
     def word_multiplier(self):
         if self.value == 'TW':
@@ -85,16 +141,6 @@ class Square:
                 return 0
         else:
             return 1
-
-    def first_empty_right(self):
-        current = self
-        right = current.right
-        while True:
-            if right is None or right.empty:
-                return current
-            else:
-                current = right
-                right = current.right
 
     def first_empty_left(self):
         current = self
@@ -135,57 +181,26 @@ class Square:
             return
         min_y = above.y
         max_y = below.y
-        sq_list_up = [self.board.get_square(self.x, y_val) for y_val in range(min_y, self.y)]
+        sq_list_up = [self.board.get_square(self.x, y_val)
+                      for y_val in range(min_y, self.y)]
         prefix = ''.join([sq.value for sq in sq_list_up])
-        sq_list_down = [self.board.get_square(self.x, y_val) for y_val in range(self.y + 1, max_y + 1)]
+        sq_list_down = [self.board.get_square(self.x, y_val)
+                        for y_val in range(self.y + 1, max_y + 1)]
         suffix = ''.join([sq.value for sq in sq_list_down])
+        # print('gcs', 'pre:', prefix, 'suf:', suffix, self.x, self.y)
         word = '{}{}{}'
-        self.cross_set = {char for char in alphabet if my_trie.contains(word.format(prefix, char, suffix))}
-        self.cross_score = sum([LETTERS[letter][1] for letter in prefix + suffix])
+        self.cross_set = {char for char in alphabet
+                          if my_trie.contains(
+                              word.format(prefix, char, suffix)
+                          )}
+        # print('me', sq.x, sq.y, cross_set, prefix, suffix)
+        self.cross_score = sum([LETTERS[letter][1]
+                                for letter in prefix + suffix])
 
     def get_placed_prefix(self):
         left = self.first_empty_left()
         min_x = left.x
-        sq_list = [self.board.get_square(x_val, self.y) for x_val in range(min_x, self.x)]
+        sq_list = [self.board.get_square(x_val, self.y)
+                   for x_val in range(min_x, self.x)]
         prefix = ''.join([sq.value for sq in sq_list])
         return prefix
-
-    def get_placed_suffix(self):
-        right = self.first_empty_right()
-        max_x = right.x
-        sq_list = [self.board.get_square(x_val, self.y) for x_val in range(self.x + 1, max_x + 1)]
-        suffix = ''.join([sq.value for sq in sq_list])
-        return suffix
-
-    def trial_place(self, letter, horizontal):
-        initial_value = self.value
-        self.value = letter
-        global all_words
-        if horizontal:
-            vert_list = self.vertical_range()
-            if len(vert_list) > 1:
-                word = ''.join([sq.value[0] for sq in vert_list])
-                if word in all_words:
-                    vert_score = self.wm * (sum([LETTERS[sq.value[-1]][1] for sq in vert_list]) + LETTERS[self.value[-1]][1] * (self.lm - 1))
-                    self.value = initial_value
-                    return vert_score
-                else:
-                    self.value = initial_value
-                    return None
-            else:
-                self.value = initial_value
-                return 0
-        else:
-            hori_list = self.horizontal_range()
-        if len(hori_list) > 1:
-            word = ''.join([sq.value[0] for sq in hori_list])
-            if word in all_words:
-                hori_score = self.wm * (sum([LETTERS[sq.value[-1]][1] for sq in hori_list]) + LETTERS[self.value[-1]][1] * (self.lm - 1))
-                self.value = initial_value
-                return hori_score
-            else:
-                self.value = initial_value
-                return None
-        else:
-            self.value = initial_value
-            return 0

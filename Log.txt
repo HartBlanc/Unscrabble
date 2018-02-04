@@ -13,9 +13,28 @@ Will attempt to implement this solution as follows:
      b) reduce using hopcrofts algorithm
     2. anchor squares [DONE]
     3. cross checks and cross scores [DONE]
-    4. backtracking algorithm
-    5. score calculation
-    6. account for wildcards
+    4. backtracking algorithm [DONE]
+    5. score calculation [DONE]
+    6. account for blank tiles
 
 Whilst implementing this solution I will attempt to take a much more Object
 Orientated approach.
+
+4th Feb:
+
+Renamed hand to rack and changed it from being a set to being a list
+    (can have multiple of each letter)
+Renamed dictionary/dict files to lexicon/lexicon
+
+Got to grips with the definition of anchors.
+     Anchor of the word is the leftmost, newly placed tile, of a newly formed word.
+    'Potential anchors' / 'anchors of the row': any unoccupied square adjacent to a tile (above, below, left or right)
+
+Have attempted to implement the blank tiles but will have to see in testing if it actually works.
+One attempt, connecting to an already placed tile, gave the correct score.
+
+Thoughts / Ideas:
+    Rename first_empty_below etc. to last_occupied_below.
+    End game strategies where perfect information is available.
+    Rewrite first round function using trie.
+    Evaluate score whilst backtracking?
