@@ -15,7 +15,7 @@ Will attempt to implement this solution as follows:
     3. cross checks and cross scores [DONE]
     4. backtracking algorithm [DONE]
     5. score calculation [DONE]
-    6. account for blank tiles
+    6. account for blank tiles [DONE]
 
 Whilst implementing this solution I will attempt to take a much more Object
 Orientated approach.

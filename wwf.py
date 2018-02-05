@@ -86,10 +86,20 @@ if go_first:
     best_play = all_plays[0]
     print('\n', 'BEST PLAY:', best_play, '\n')
     placed = input('placed e.g. \'word\', \'Vertical\', 1, 2: ')
-    eval('board.place({})'.format(placed))
+while True:
+    try:
+        eval('board.place({})'.format(placed))
+        break
+    except:
+        print('try again')
     board.display()
-    op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
-    eval('board.place({})'.format(op_placed))
+while True:
+    try:
+        op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
+        eval('board.place({})'.format(op_placed))
+        break
+    except:
+        print('try again')
     board.display()
 
 
@@ -142,9 +152,19 @@ while True:
 
     best_play = all_plays[0]
     print('\n', 'BEST PLAY:', best_play, '\n')
-    placed = input('placed e.g. \'word\', \'Vertical\' , 1, 2: ')
-    eval('board.place({})'.format(placed))
+    while True:
+        try:
+            placed = input('placed e.g. \'word\', \'Vertical\' , 1, 2: ')
+            eval('board.place({})'.format(placed))
+            break
+        except:
+            print('try again')
     board.display()
-    op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
-    eval('board.place({})'.format(op_placed))
+while True:
+    try:
+        op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
+        eval('board.place({})'.format(op_placed))
+        break
+    except:
+        print('try again')
     board.display()
