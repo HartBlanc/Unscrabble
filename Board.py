@@ -1,22 +1,5 @@
+# from trie import Trie
 from Square import Square
-
-LETTERS = {
-    'a': (9, 1), 'b': (2, 4), '.': (2, 0), 'c': (2, 4), 'd': (5, 2),
-    'e': (13, 1), 'f': (2, 4), 'g': (3, 3), 'h': (4, 3), 'i': (8, 1),
-    'j': (1, 10), 'k': (1, 5), 'l': (4, 2), 'm': (2, 4), 'n': (5, 2),
-    'o': (8, 1), 'p': (2, 4), 'q': (1, 10), 'r': (6, 1), 's': (5, 1),
-    't': (7, 1), 'u': (4, 2), 'v': (2, 5), 'w': (2, 4), 'x': (1, 8),
-    'y': (2, 3), 'z': (1, 10),
-    # 'a.': (9, 1), 'b.': (2, 4), 'c.': (2, 4), 'd.': (5, 2),
-    # 'e.': (13, 1), 'f.': (2, 4), 'g.': (3, 3), 'h.': (4, 3), 'i.': (8, 1),
-    # 'j.': (1, 10), 'k.': (1, 5), 'l.': (4, 2), 'm.': (2, 4), 'n.': (5, 2),
-    # 'o.': (8, 1), 'p.': (2, 4), 'q.': (1, 10), 'r.': (6, 1), 's.': (5, 1),
-    # 't.': (7, 1), 'u.': (4, 2), 'v.': (2, 5), 'w.': (2, 4), 'x.': (1, 8),
-    # 'y.': (2, 3), 'z.': (1, 10)
-}
-
-# all_spans = [[(i, n + i) for i in range(1, 12 - n)] for n in range(1, 11)]
-# flat_all_spans = [item for sublist in all_spans for item in sublist]
 
 
 class Board:
@@ -91,13 +74,12 @@ class Board:
             return square[0]
 
     def place(self, word, horizontal, x, y, wcs):
-        listy = place_split(word)
         if not horizontal:
             self.transpose()
             old_x = x
             x = y
             y = old_x
-        for i, letter in enumerate(listy):
+        for i, letter in enumerate(word):
             sq = self.get_square(x + i, y)
             if sq.empty:
                 sq.value = letter
@@ -106,15 +88,18 @@ class Board:
                 sq.lm = sq.letter_multiplier()
                 if i + 1 in wcs:
                     sq.lm = 0
-                for adj in (sq.first_empty_above().above, sq.first_empty_below().below):
+                for adj in (sq.first_empty_above().above,
+                            sq.first_empty_below().below):
                     if adj is not None:
                         adj.get_cross_set()
                 if i == 0:
-                    if sq.left is not None:
-                        sq.left.get_cross_set()
-                if i == len(listy) - 1:
-                    if sq.right is not None:
-                        sq.right.get_cross_set()
+                    lefty = sq.first_empty_left().left
+                    if lefty is not None:
+                        lefty.get_cross_set()
+                if i == len(word) - 1:
+                    righty = sq.first_empty_right().right
+                    if righty is not None:
+                        righty.get_cross_set()
         if not horizontal:
             self.transpose()
         self.get_anchors()
@@ -125,18 +110,3 @@ class Board:
         for line in self.lines:
             print(line)
         print('***********')
-
-
-def place_split(word):
-    listy = []
-    if '.' in word:
-        for i, letter in enumerate(word):
-            if letter == '.':
-                continue
-            if i < len(word) - 1:
-                if word[i + 1] == '.':
-                    letter += '.'
-            listy.append(letter)
-    else:
-        listy = list(word)
-    return listy
