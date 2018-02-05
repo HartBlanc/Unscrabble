@@ -11,7 +11,7 @@ LETTERS = {
     'y': (2, 3), 'z': (1, 10),
 }
 
-# with open('lexi.txt') as f:
+# with open('enable.txt') as f:
 #     content = f.readlines()
 #     all_words = [x.strip() for x in content]
 #
