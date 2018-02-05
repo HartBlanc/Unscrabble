@@ -47,6 +47,8 @@ class Square:
                 my_trie.insert(prefix)
                 with open("lexi.pkl", "wb") as f:
                     pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                with open('wwf.txt', 'a') as f:
+                    f.write(prefix + '\n')
                 print('INSERTED:', prefix)
                 N = my_trie.Root
                 adj_nodes = N.next_nodes
