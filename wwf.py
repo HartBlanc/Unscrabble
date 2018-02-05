@@ -87,8 +87,9 @@ def place_split(word):
 
 def score(entry):
     word = entry[0]
-    listy = [i for i, letter in list(enumerate(word))[:len(word) - 1] if word[i + 1] == '.']
-    listy = [i - j for j, i in enumerate(listy)]
+    dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1]
+                  if word[i + 1] == '.']
+    blank_places = [i - j for j, i in enumerate(dot_places)]
     word = word.replace('.', '')
     if entry[1] == 'Vertical':
         x = entry[3]
@@ -97,14 +98,9 @@ def score(entry):
         x = entry[2]
         y = entry[3]
 
-    # for wc in wcs:
-    #     sq = board.get_square(wc, y)
-    #     old_lms.append(sq.lm)
-    #     sq.lm = 0
-
     sq_list = [board.get_square(x + i, y) for i in range(0, len(word))]
     old_lms = []
-    for i in listy:
+    for i in blank_places:
         old_lms.append(sq_list[i].lm)
         sq_list[i].lm = 0
     # print(''.join([sq.value for sq in sq_list]), word)
@@ -124,7 +120,7 @@ def score(entry):
     if emptys == 7:
         print('BINGO:', word, entry[1], entry[2], entry[3])
         score += 35
-    for j, i in enumerate(listy):
+    for j, i in enumerate(blank_places):
         sq = sq_list[i]
         sq.lm = old_lms[j]
     return score

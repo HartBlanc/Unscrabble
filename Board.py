@@ -1,4 +1,3 @@
-# from trie import Trie
 from Square import Square
 
 
@@ -73,7 +72,14 @@ class Board:
         if square:
             return square[0]
 
-    def place(self, word, horizontal, x, y, wcs):
+    def place(self, word, horizontal, x, y):
+        dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1] if word[i + 1] == '.']
+        blank_places = [i - j for j, i in enumerate(dot_places)]
+        word = word.replace('.', '')
+        if horizontal == 'Vertical':
+            horizontal = False
+        else:
+            horizontal = True
         if not horizontal:
             self.transpose()
             old_x = x
@@ -86,7 +92,7 @@ class Board:
                 sq.empty = False
                 sq.wm = 1
                 sq.lm = sq.letter_multiplier()
-                if i + 1 in wcs:
+                if i in blank_places:
                     sq.lm = 0
                 for adj in (sq.first_empty_above().above,
                             sq.first_empty_below().below):
