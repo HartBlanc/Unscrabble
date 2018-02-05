@@ -84,6 +84,16 @@ class Square:
             start_x = self.x - limit
         adj_nodes = N.next_nodes
         if sq is None:
+            if N.terminal:
+                if self.board.transposed:
+                    # print(PartialWord, 'Vetical', self.y, start_x)
+                    self.legal_moves.add((PartialWord, 'Vertical', self.y,
+                                          start_x))
+                else:
+                    # print(PartialWord, self.x, self.y)
+                    # print('yes', PartialWord, 'Horizontal', start_x, self.y)
+                    self.legal_moves.add((PartialWord, 'Horizontal', start_x,
+                                          self.y))
             return
         if sq.empty:
             if N.terminal and sq != self:

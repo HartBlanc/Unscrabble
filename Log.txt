@@ -43,3 +43,5 @@ Thoughts / Ideas:
 5th Feb:
     The lexicon trie is now pickl serialised and is capable of adding
     newly encountered words
+    Fixed 'jag' bug.
+    Previously wouldn't suggest words that ended on the edge of the board.
