@@ -1,16 +1,17 @@
 from collections import Counter
-from Board import Board, LETTERS
+from Board import Board
 from itertools import combinations
-from trie import my_trie
+# from trie import Trie
+from trie import my_trie, LETTERS
 from functools import reduce
 from operator import mul
 
-
 def subanagram(str1, str2, wc):
-    str2 = str2.replace('.','')
+    str2 = str2.replace('.', '')
     str1_counter, str2_counter = Counter(str1), Counter(str2)
-    total = sum(str1_counter[char] - str2_counter[char] for char in str1_counter
-               if str1_counter[char] - str2_counter[char] > 0)
+    total = sum(str1_counter[char] - str2_counter[char]
+                for char in str1_counter
+                if str1_counter[char] - str2_counter[char] > 0)
     if total > wc:
         return False
     else:
@@ -69,28 +70,49 @@ def replace_wc(listy_1, listy_2, wc):
                 listy_1.append(''.join(listy_word))
     return listy_1
 
+def place_split(word):
+    listy = []
+    if '.' in word:
+        for i, letter in enumerate(word):
+            if letter == '.':
+                continue
+            if i < len(word) - 1:
+                if word[i + 1] == '.':
+                    letter += '.'
+            listy.append(letter)
+    else:
+        listy = list(word)
+    return listy
+
 
 def score(entry):
     word = entry[0]
-    wcs = entry[4]
+    listy = [i for i, letter in list(enumerate(word))[:len(word) - 1] if word[i + 1] == '.']
+    listy = [i - j for j, i in enumerate(listy)]
+    word = word.replace('.', '')
     if entry[1] == 'Vertical':
         x = entry[3]
         y = entry[2]
     else:
         x = entry[2]
         y = entry[3]
-        old_lms = []
-        for wc in wcs:
-            sq = board.get_square(wc, y)
-            old_lms.append(sq.lm)
-            sq.lm = 0
+
+    # for wc in wcs:
+    #     sq = board.get_square(wc, y)
+    #     old_lms.append(sq.lm)
+    #     sq.lm = 0
 
     sq_list = [board.get_square(x + i, y) for i in range(0, len(word))]
+    old_lms = []
+    for i in listy:
+        old_lms.append(sq_list[i].lm)
+        sq_list[i].lm = 0
     # print(''.join([sq.value for sq in sq_list]), word)
     # print(word, entry[1], entry[2], entry[3])
     hm = reduce(mul, [sq.wm for sq in sq_list], 1)
     # print(hm)
-    cross_score = sum([sq.wm * (sq.cross_score + LETTERS[word[sq.x - x]][1] * sq.lm)
+    cross_score = sum([sq.wm *
+                       (sq.cross_score + LETTERS[word[sq.x - x]][1] * sq.lm)
                        for sq in sq_list if sq.empty and sq.cross_score > 0])
     # print(cross_score)
     hori_score = hm * sum([LETTERS[word[sq.x - x]][1] * sq.lm
@@ -102,24 +124,24 @@ def score(entry):
     if emptys == 7:
         print('BINGO:', word, entry[1], entry[2], entry[3])
         score += 35
-    for i, wc in enumerate(wcs):
-        sq = board.get_square(wc, y)
-        sq.lm = old_lms[i]
+    for j, i in enumerate(listy):
+        sq = sq_list[i]
+        sq.lm = old_lms[j]
     return score
 
 
 list_board = [
-        ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL'],
-        ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
-        ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
-        ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
-        ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
-        ['_', 'DW', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
-        ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
-        ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
-        ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
-        ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
-        ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL']
+             ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL'],
+             ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
+             ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
+             ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
+             ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
+             ['_', 'DW', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+             ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
+             ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
+             ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
+             ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
+             ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL']
 ]
 board = Board(list_board)
 
@@ -148,7 +170,12 @@ board.place('almes', True, 1, 9, [])
 board.place('mux', False, 3, 9, [])
 board.place('ayin', True, 2, 7, [])
 board.place('rex', True, 1, 11, [])
-# board.place('cat', True, 6, 5)
+board.place('foetid', False, 6, 1, [])
+board.place('before', True, 4, 1, [])
+board.place('pinweed', True, 1, 3, [5])
+board.place('zeps', False, 1, 1, [])
+board.place('ikat', True, 5, 10, [])
+board.place('golds', True, 7, 11, [])
 board.display()
 
 all_plays = set()
@@ -159,7 +186,7 @@ for sq in board.anchors:
         limit = sq.x - 1
     else:
         limit = sq.x - fla.x - 1
-    sq.LeftPart('', my_trie.Root, limit, list(rack), [])
+    sq.LeftPart('', my_trie.Root, limit, list(rack))
     for x in sq.legal_moves:
         if score(x) > 0:
             all_plays.add((score(x), x))
@@ -172,7 +199,7 @@ for sq in board.anchors:
         limit = sq.x - 1
     else:
         limit = sq.x - fla.x - 1
-    sq.LeftPart('', my_trie.Root, limit, list(rack), [])
+    sq.LeftPart('', my_trie.Root, limit, list(rack))
     for x in sq.legal_moves:
         my_score = score(x)
         if my_score > 0:
@@ -180,7 +207,7 @@ for sq in board.anchors:
 
 all_plays = list(all_plays)
 all_plays.sort(key=lambda x: x[0], reverse=True)
-print('Top ten plays: ', all_plays[0:10])
+print('Top ten plays: ', all_plays)
 
 best_play = all_plays[0]
 print('\n', 'BEST PLAY:', best_play, '\n')

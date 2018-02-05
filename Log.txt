@@ -34,7 +34,12 @@ Have attempted to implement the blank tiles but will have to see in testing if i
 One attempt, connecting to an already placed tile, gave the correct score.
 
 Thoughts / Ideas:
+    Rewrite README
     Rename first_empty_below etc. to last_occupied_below.
     End game strategies where perfect information is available.
     Rewrite first round function using trie.
     Evaluate score whilst backtracking?
+
+5th Feb:
+    The lexicon trie is now pickl serialised and is capable of adding
+    newly encountered words

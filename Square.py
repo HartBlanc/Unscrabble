@@ -1,23 +1,6 @@
-# from Board import Board
-from trie import my_trie
-
-LETTERS = {
-    '.': (2, 0), 'a': (9, 1), 'b': (2, 4), 'c': (2, 4), 'd': (5, 2),
-    'e': (13, 1), 'f': (2, 4), 'g': (3, 3), 'h': (4, 3), 'i': (8, 1),
-    'j': (1, 10), 'k': (1, 5), 'l': (4, 2), 'm': (2, 4), 'n': (5, 2),
-    'o': (8, 1), 'p': (2, 4), 'q': (1, 10), 'r': (6, 1), 's': (5, 1),
-    't': (7, 1), 'u': (4, 2), 'v': (2, 5), 'w': (2, 4), 'x': (1, 8),
-    'y': (2, 3), 'z': (1, 10)
-    # 'a.': (9, 0), 'b.': (2, 4), 'c.': (2, 4), 'd.': (5, 2),
-    # 'e.': (13, 1), 'f.': (2, 4), 'g.': (3, 3), 'h.': (4, 3), 'i.': (8, 1),
-    # 'j.': (1, 10), 'k.': (1, 5), 'l.': (4, 2), 'm.': (2, 4), 'n.': (5, 2),
-    # 'o.': (8, 1), 'p.': (2, 4), 'q.': (1, 10), 'r.': (6, 1), 's.': (5, 1),
-    # 't.': (7, 1), 'u.': (4, 2), 'v.': (2, 5), 'w.': (2, 4), 'x.': (1, 8),
-    # 'y.': (2, 3), 'z.': (1, 10)
-}
-
+from trie import my_trie, LETTERS
+import pickle
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
-
 
 class Square:
 
@@ -51,37 +34,47 @@ class Square:
                 current = left
                 left = current.left
 
-    def LeftPart(self, PartialWord, N, limit, rack, wcs):
+    def LeftPart(self, PartialWord, N, limit, rack):
         adj_nodes = N.next_nodes
         if self.left is not None and not self.left.empty:
             prefix = self.get_placed_prefix()
-            for char in prefix:
-                N = adj_nodes[char]
+            try:
+                for char in prefix:
+                    N = adj_nodes[char]
+                    adj_nodes = N.next_nodes
+            except KeyError:
+                my_trie.insert(prefix)
+                with open("lexi.pkl", "wb") as f:
+                    pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                print('INSERTED:', prefix)
+                N = my_trie.Root
                 adj_nodes = N.next_nodes
-            self.ExtendRight(prefix, N, self, len(prefix), rack, wcs, 0)
+                for char in prefix:
+                    N = adj_nodes[char]
+                    adj_nodes = N.next_nodes
+            self.ExtendRight(prefix, N, self, len(prefix), rack)
+
             return
-        self.ExtendRight(PartialWord, N, self, limit, rack, wcs, 0)
+        self.ExtendRight(PartialWord, N, self, limit, rack)
         if limit > 0:
-            fla = self.first_left_anchor()
-            if fla is None:
-                current = limit + 1
-            else:
-                current = fla.x + limit
+            # fla = self.first_left_anchor()
+            # if fla is None:
+            #     current = limit + 1
+            # else:
+            #     current = fla.x + limit
             for char in adj_nodes:
                 if char in rack:
                     rack.remove(char)
                     self.LeftPart(PartialWord + char, adj_nodes[char],
-                                  limit - 1, rack, wcs)
+                                  limit - 1, rack)
                     rack.append(char)
                 elif '.' in rack:
                     rack.remove('.')
-                    wcs.append(current)
-                    self.LeftPart(PartialWord + char, adj_nodes[char],
-                                  limit - 1, rack, wcs)
+                    self.LeftPart(PartialWord + char + '.', adj_nodes[char],
+                                  limit - 1, rack)
                     rack.append('.')
 
-    def ExtendRight(self, PartialWord, N, sq, limit, rack, wcs, i):
-        current = self.x + i
+    def ExtendRight(self, PartialWord, N, sq, limit, rack):
         fla = self.first_left_anchor()
         if fla is None:
             start_x = limit + 1
@@ -97,24 +90,23 @@ class Square:
                 if self.board.transposed:
                     # print(PartialWord, 'Vetical', self.y, start_x)
                     self.legal_moves.add((PartialWord, 'Vertical', self.y,
-                                          start_x, tuple(wcs)))
+                                          start_x))
                 else:
                     # print(PartialWord, self.x, self.y)
                     # print('yes', PartialWord, 'Horizontal', start_x, self.y)
                     self.legal_moves.add((PartialWord, 'Horizontal', start_x,
-                                          self.y, tuple(wcs)))
+                                          self.y))
             for char in adj_nodes:
                 # print(sq.cross_set, sq.x, sq.y)
                 if char in rack and char in sq.cross_set:
                     rack.remove(char)
-                    self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right,
-                                 limit, rack, wcs, i + 1)
+                    self.ExtendRight(PartialWord + char, adj_nodes[char],
+                                     sq.right, limit, rack)
                     rack.append(char)
-                elif '.' in rack:
+                elif '.' in rack and char in sq.cross_set:
                     rack.remove('.')
-                    wcs.append(current)
-                    self.ExtendRight(PartialWord + char, adj_nodes[char], sq.right,
-                                 limit, rack, wcs, i + 1)
+                    self.ExtendRight(PartialWord + char + '.', adj_nodes[char],
+                                     sq.right, limit, rack)
                     rack.append('.')
 
         else:
@@ -122,7 +114,7 @@ class Square:
             if char in adj_nodes:
                 # rack stays the same
                 self.ExtendRight(PartialWord + char, adj_nodes[char],
-                                 sq.right, limit, rack, wcs, i + 1)
+                                 sq.right, limit, rack)
 
     def word_multiplier(self):
         if self.value == 'TW':
@@ -151,6 +143,16 @@ class Square:
             else:
                 current = left
                 left = current.left
+
+    def first_empty_right(self):
+        current = self
+        right = current.right
+        while True:
+            if right is None or right.empty:
+                return current
+            else:
+                current = right
+                right = current.right
 
     def first_empty_above(self):
         current = self
