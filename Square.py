@@ -1,6 +1,7 @@
-from trie import my_trie, LETTERS
+from lexicon import my_trie, LETTERS
 import pickle
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
 
 class Square:
 

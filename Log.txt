@@ -34,14 +34,35 @@ Have attempted to implement the blank tiles but will have to see in testing if i
 One attempt, connecting to an already placed tile, gave the correct score.
 
 Thoughts / Ideas:
-    Rewrite README
+    Rewrite README [DONE]
     Rename first_empty_below etc. to last_occupied_below.
     End game strategies where perfect information is available.
-    Rewrite first round function using trie.
-    Evaluate score whilst backtracking?
+        Adverserial search
+    Rewrite first round function using trie. [DONE]
+    Evaluate score whilst backtracking? [will not attempt]
 
 5th Feb:
     The lexicon trie is now pickl serialised and is capable of adding
     newly encountered words
     Fixed 'jag' bug.
     Previously wouldn't suggest words that ended on the edge of the board.
+
+    Notes from Chips Challenging Champions: Games, Computers and Artificial Intelligence:
+    https://books.google.co.uk/books?id=QsNaTy9GO8kC&pg=PA317&lpg=PA317&dq=sigart+newsletter+80&source=bl&ots=Wl48O_3YST&sig=fHD_8lKINeCBPXv4gTkm-kon5wM&hl=en&sa=X&ved=0ahUKEwiNgqPFiY_ZAhXGLcAKHc1KD5AQ6AEILzAB#v=onepage&q=sigart%20newsletter%2080&f=false
+    https://www.wikiwand.com/en/Maven_(Scrabble)
+    Rack evaluation:
+        'it pays to get rid of duplicate tiles and q'
+        'qu valuable but q not'
+    pre-endgame: 16 unseen tiles
+    end game: when the bag is empty
+    B* search
+    For a perfect strategy:
+        Calculate probabilities of getting each rack given the 'rack-leave' of each play and the tiles in the bag
+        calculate the probabilities of all plays your opponent could make and hence the resulting boards
+        for each resulting board generate all legal plays
+        repeat until either you or opponent has no tiles.
+        pick the legal play for which most scenarios end in you winning.
+
+    Heuristic for rack evaluation
+        calculate probabilities of getting each rack given the 'rack-leave' of each play and the tiles in the bag
+        value of rack is the number of words that can be formed with that rack.
