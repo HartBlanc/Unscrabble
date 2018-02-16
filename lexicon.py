@@ -1,5 +1,6 @@
 import pickle
-# from trie import Trie
+from sys import argv
+
 
 
 LETTERS = {
@@ -11,23 +12,40 @@ LETTERS = {
     'y': (2, 3), 'z': (1, 10),
 }
 
-# with open('enable.txt') as f:
-#     content = f.readlines()
-#     all_words = [x.strip() for x in content]
-#
-#
-# length = [(word, len(word)) for word in all_words]
-# length.sort(key=lambda x: x[1], reverse=True)
-#
-# print(length[0])
-#
-# lexi = [x for x in all_words if len(x) <= 11]
+if (len(argv) > 1 and argv[1] != 'build') or len(argv) <= 1:
+    with open('lexi.pkl', "rb") as f:
+        my_trie = pickle.load(f)
 
-# my_trie = Trie(dicto)
+if __name__ == '__main__':
+    if len(argv) > 1:
+        if argv[1] == 'in':
+            quotes = '\'{}\''
+            for arg in argv[2:]:
+                if my_trie.contains(arg):
+                    print(quotes.format(arg), "in lexicon")
+                else:
+                    print(quotes.format(arg), "not in lexicon")
 
+        elif argv[1] == 'build':
+            from trie import Trie
+            filename = argv[2]
+            with open(filename) as f:
+                content = f.readlines()
+                all_words = [x.strip() for x in content if len(x) <= 11]
+            my_trie = Trie(all_words)
+            if all([my_trie.contains(word) for word in all_words]):
+                print("Successfully constructed lexicon trie")
+            else:
+                print("Some words missing from lexicon trie")
+            with open("lexi.pkl", "wb") as f:
+                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-# with open("lexi.pkl", "wb") as f:
-#     pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-with open('lexi.pkl', "rb") as f:
-    my_trie = pickle.load(f)
+        elif argv[1] == 'del':
+            for word in argv[2:]:
+                my_trie.delete(word)
+            if all([not my_trie.contains(word) for word in argv[2:]]):
+                print("Successfully removed words from lexicon trie")
+            else:
+                print("Some words not deleted from lexicon trie")
+            with open("lexi.pkl", "wb") as f:
+                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
