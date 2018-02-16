@@ -49,3 +49,13 @@ if __name__ == '__main__':
                 print("Some words not deleted from lexicon trie")
             with open("lexi.pkl", "wb") as f:
                 pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+        elif argv[1] == 'add':
+            for word in argv[2:]:
+                my_trie.insert(word)
+            if all([my_trie.contains(word) for word in argv[2:]]):
+                print("Successfully added words to lexicon trie")
+            else:
+                print("Some words not added to lexicon trie")
+            with open("lexi.pkl", "wb") as f:
+                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
