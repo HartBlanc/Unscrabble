@@ -10,7 +10,7 @@ class Square:
         self.x = x
         self.y = y
         self.board = board
-        self.empty = True
+        self.empty = True if value in ('TW', '_', 'TL', 'DL', 'DW') else False
         self.wm = self.word_multiplier()
         self.lm = self.letter_multiplier()
         self.cross_set = set()
@@ -199,9 +199,13 @@ class Square:
         sq_list_up = [self.board.get_square(self.x, y_val)
                       for y_val in range(min_y, self.y)]
         prefix = ''.join([sq.value for sq in sq_list_up])
+        prefix_score = sum([LETTERS[sq.value][1] * sq.lm
+                            for sq in sq_list_up])
         sq_list_down = [self.board.get_square(self.x, y_val)
                         for y_val in range(self.y + 1, max_y + 1)]
         suffix = ''.join([sq.value for sq in sq_list_down])
+        suffix_score = sum([LETTERS[sq.value][1] * sq.lm
+                            for sq in sq_list_down])
         # print('gcs', 'pre:', prefix, 'suf:', suffix, self.x, self.y)
         word = '{}{}{}'
         self.cross_set = {char for char in alphabet
@@ -209,8 +213,7 @@ class Square:
                               word.format(prefix, char, suffix)
                           )}
         # print('me', sq.x, sq.y, cross_set, prefix, suffix)
-        self.cross_score = sum([LETTERS[letter][1]
-                                for letter in prefix + suffix])
+        self.cross_score = prefix_score + suffix_score
 
     def get_placed_prefix(self):
         left = self.first_empty_left()
