@@ -7,7 +7,9 @@ class Board:
         self.build_lines()
         self.direction_relations()
         self.transposed = False
-        self.anchors = []
+        self.get_anchors()
+        for sq in self.squares:
+            sq.get_cross_set()
 
     def transpose(self):
         for sq in self.squares:
@@ -38,14 +40,10 @@ class Board:
                    # and (sq.left is None or sq.left.empty)
                    and any(not adj.empty for adj in sq.real_adjacent)
                    ]
-        print([(sq.x, sq.y) for sq in anchors])
+        # print([(sq.x, sq.y) for sq in anchors])
         self.anchors = anchors
         for sq in self.squares:
-            # sq.anchor = True if sq in self.anchors else False
-            if sq in self.anchors:
-                sq.anchor = True
-            else:
-                sq.anchor = False
+            sq.anchor = True if sq in self.anchors else False
 
     def build_lines(self):
         self.lines = []
