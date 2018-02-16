@@ -35,3 +35,25 @@ class Trie:
             return True
         else:
             return False
+
+    def delete(self, word):
+        # NOT IN WORD
+        if not self.contains(word):
+            return
+        else:
+            t_node = self.Root
+            d_node = None
+            for char in word[:-1]:
+                if t_node.terminal:
+                    d_node = (t_node, char)
+                t_node = t_node.next_nodes[char]
+            if d_node is None:
+                # DELETED WORD IS A UNIQUE KEY
+                if len(t_node.next_nodes) == 0:
+                    del self.Root.next_nodes[word[0]]
+                # DELETED WORD IS A PREFIX
+                else:
+                    t_node.next_nodes[word[-1]].terminal = False
+            # DELETED WORD HAS PREFIX
+            else:
+                del d_node[0].next_nodes[char]
