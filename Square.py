@@ -13,6 +13,7 @@ class Square:
         self.empty = True if value in ('TW', '_', 'TL', 'DL', 'DW', 'CE') else False
         self.wm = self.word_multiplier()
         self.lm = self.letter_multiplier()
+        self.value = value[0]
         self.cross_set = set()
         self.left = None
         self.right = None
