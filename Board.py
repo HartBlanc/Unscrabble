@@ -41,7 +41,7 @@ class Board:
                    and any(not adj.empty for adj in sq.real_adjacent)
                    ]
         # print([(sq.x, sq.y) for sq in anchors])
-        self.anchors = anchors
+        self.anchors = anchors if anchors else [self.get_square(6, 6)]
         for sq in self.squares:
             sq.anchor = True if sq in self.anchors else False
 

@@ -10,7 +10,7 @@ class Square:
         self.x = x
         self.y = y
         self.board = board
-        self.empty = True if value in ('TW', '_', 'TL', 'DL', 'DW') else False
+        self.empty = True if value in ('TW', '_', 'TL', 'DL', 'DW', 'CE') else False
         self.wm = self.word_multiplier()
         self.lm = self.letter_multiplier()
         self.cross_set = set()
@@ -22,6 +22,7 @@ class Square:
         self.real_adjacents = tuple()
         self.legal_moves = set()
         self.anchor = False
+
 
     def first_left_anchor(self):
         current = self
