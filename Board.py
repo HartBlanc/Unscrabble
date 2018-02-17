@@ -1,4 +1,5 @@
 from Square import Square
+from itertools import chain
 
 
 
@@ -24,24 +25,25 @@ class Board:
         self.direction_relations()
         self.transposed = False
         self.get_anchors()
-        for sq in self.squares:
+        for sq in chain.from_iterable(self.squares):
             sq.get_cross_set()
 
     def transpose(self):
-        for sq in self.squares:
+        for sq in chain.from_iterable(self.squares):
             old_x = sq.x
             sq.x = sq.y
             sq.y = old_x
             sq.legal_moves = set()
+        self.squares = list(map(list, zip(*self.squares)))
         self.transposed = not self.transposed
         self.direction_relations()
-        for sq in self.squares:
+        for sq in chain.from_iterable(self.squares):
             sq.get_cross_set()
         self.build_lines()
         self.get_anchors()
 
     def direction_relations(self):
-        for sq in self.squares:
+        for sq in chain.from_iterable(self.squares):
             sq.left = self.get_square(sq.x - 1, sq.y)
             sq.right = self.get_square(sq.x + 1, sq.y)
             sq.above = self.get_square(sq.x, sq.y - 1)
@@ -51,14 +53,14 @@ class Board:
                                             sq.adjacent))
 
     def get_anchors(self):
-        anchors = [sq for sq in self.squares
+        anchors = [sq for sq in chain.from_iterable(self.squares)
                    if sq.empty
                    # and (sq.left is None or sq.left.empty)
                    and any(not adj.empty for adj in sq.real_adjacent)
                    ]
         # print([(sq.x, sq.y) for sq in anchors])
         self.anchors = anchors if anchors else [self.get_square(6, 6)]
-        for sq in self.squares:
+        for sq in chain.from_iterable(self.squares):
             sq.anchor = True if sq in self.anchors else False
 
     def build_lines(self):
@@ -76,15 +78,19 @@ class Board:
     def build_squares(self, build_list):
         self.squares = []
         for y, row in enumerate(build_list):
+            sq_row = []
             for x, value in enumerate(row):
-                self.squares.append(Square(value, x + 1, y + 1, self))
+                sq_row.append(Square(value, x + 1, y + 1, self))
+            self.squares.append(sq_row)
+
         self.N = y + 1
 
     def get_square(self, x_val, y_val):
-        square = [sq for sq in self.squares
-                  if (sq.x, sq.y) == (x_val, y_val)]
-        if square:
-            return square[0]
+        # square = [sq for sq in self.squares
+        #           if (sq.x, sq.y) == (x_val, y_val)]
+        # if square:
+        if (1 <= x_val <= self.N) and (1 <= y_val <= self.N):
+            return self.squares[y_val - 1][x_val - 1]
 
     def place(self, word, horizontal, x, y):
         dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1] if word[i + 1] == '.']
