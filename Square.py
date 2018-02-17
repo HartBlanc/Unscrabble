@@ -1,4 +1,4 @@
-from lexicon import my_trie, LETTERS
+from lexicon import lexicon, LETTERS
 import pickle
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -44,13 +44,13 @@ class Square:
                     N = adj_nodes[char]
                     adj_nodes = N.next_nodes
             except KeyError:
-                my_trie.insert(prefix)
+                lexicon.insert(prefix)
                 with open("lexi.pkl", "wb") as f:
-                    pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(lexicon, f, protocol=pickle.HIGHEST_PROTOCOL)
                 with open('wwf.txt', 'a') as f:
                     f.write(prefix + '\n')
                 print('INSERTED:', prefix)
-                N = my_trie.Root
+                N = lexicon.Root
                 adj_nodes = N.next_nodes
                 for char in prefix:
                     N = adj_nodes[char]
@@ -209,7 +209,7 @@ class Square:
         # print('gcs', 'pre:', prefix, 'suf:', suffix, self.x, self.y)
         word = '{}{}{}'
         self.cross_set = {char for char in alphabet
-                          if my_trie.contains(
+                          if lexicon.contains(
                               word.format(prefix, char, suffix)
                           )}
         # print('me', sq.x, sq.y, cross_set, prefix, suffix)

@@ -1,5 +1,5 @@
 from Board import Board
-from lexicon import my_trie, LETTERS
+from lexicon import lexicon, LETTERS
 from functools import reduce
 from operator import mul
 

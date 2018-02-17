@@ -14,14 +14,14 @@ LETTERS = {
 
 if (len(argv) > 1 and argv[1] != 'build') or len(argv) <= 1:
     with open('lexi.pkl', "rb") as f:
-        my_trie = pickle.load(f)
+        lexicon = pickle.load(f)
 
 if __name__ == '__main__':
     if len(argv) > 1:
         if argv[1] == 'in':
             quotes = '\'{}\''
             for arg in argv[2:]:
-                if my_trie.contains(arg):
+                if lexicon.contains(arg):
                     print(quotes.format(arg), "in lexicon")
                 else:
                     print(quotes.format(arg), "not in lexicon")
@@ -32,30 +32,30 @@ if __name__ == '__main__':
             with open(filename) as f:
                 content = f.readlines()
                 all_words = [x.strip() for x in content if len(x) <= 11]
-            my_trie = Trie(all_words)
-            if all([my_trie.contains(word) for word in all_words]):
+            lexicon = Trie(all_words)
+            if all([lexicon.contains(word) for word in all_words]):
                 print("Successfully constructed lexicon trie")
             else:
                 print("Some words missing from lexicon trie")
             with open("lexi.pkl", "wb") as f:
-                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(lexicon, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         elif argv[1] == 'del':
             for word in argv[2:]:
-                my_trie.delete(word)
-            if all([not my_trie.contains(word) for word in argv[2:]]):
+                lexicon.delete(word)
+            if all([not lexicon.contains(word) for word in argv[2:]]):
                 print("Successfully removed words from lexicon trie")
             else:
                 print("Some words not deleted from lexicon trie")
             with open("lexi.pkl", "wb") as f:
-                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(lexicon, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         elif argv[1] == 'add':
             for word in argv[2:]:
-                my_trie.insert(word)
-            if all([my_trie.contains(word) for word in argv[2:]]):
+                lexicon.insert(word)
+            if all([lexicon.contains(word) for word in argv[2:]]):
                 print("Successfully added words to lexicon trie")
             else:
                 print("Some words not added to lexicon trie")
             with open("lexi.pkl", "wb") as f:
-                pickle.dump(my_trie, f, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(lexicon, f, protocol=pickle.HIGHEST_PROTOCOL)
