@@ -16,10 +16,9 @@ class Board:
                 ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', 'TW'],
                 ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
                 ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL']
-]
+    ]
 
-    def __init__(self,
-                 build_list=wwf_board):
+    def __init__(self, build_list=wwf_board):
         self.build_squares(build_list)
         self.build_lines()
         self.direction_relations()
