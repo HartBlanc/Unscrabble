@@ -1,3 +1,14 @@
+Current Objectives:
+    dawg data structure
+    Rename first_empty_below etc. to last_occupied_below.
+    End game strategies where perfect information is available.
+        Adversarial Search
+    Profile and optimise
+    Implement wildcard reader and first turn detector for playInSelenium
+    Error catching so that can try again when there is an error
+
+
+
 Pre 1st Feb:
     Created a viable functioning program without reading other peoples solutions
 
@@ -10,7 +21,7 @@ Pre 1st Feb:
 Will attempt to implement this solution as follows:
     1. dawg data structure
      a) start with trie [DONE]
-     b) reduce using hopcrofts algorithm
+     b) reduce using Hopcroft's algorithm
     2. anchor squares [DONE]
     3. cross checks and cross scores [DONE]
     4. backtracking algorithm [DONE]
@@ -37,7 +48,7 @@ Thoughts / Ideas:
     Rewrite README [DONE]
     Rename first_empty_below etc. to last_occupied_below.
     End game strategies where perfect information is available.
-        Adverserial search
+        Adversarial Search
     Rewrite first round function using trie. [DONE]
     Evaluate score whilst backtracking? [will not attempt]
 
@@ -66,3 +77,117 @@ Thoughts / Ideas:
     Heuristic for rack evaluation
         calculate probabilities of getting each rack given the 'rack-leave' of each play and the tiles in the bag
         value of rack is the number of words that can be formed with that rack.
+
+    Thoughts / Ideas:
+        Profile and optimise
+        Add program that reads facebook messenger WWF app board for input
+        change squares to NxN array and get squares to indices of array (Numpy?)
+        log of moves methods to undo / redo moves
+
+8th Feb:
+    Implemented delete method for trie class
+
+    Thoughts / Ideas:
+    Auto checker:
+        The program checks to see if it could have generated the opponents move
+
+10th Feb:
+
+    Thoughts / Ideas:
+
+    Rack evaluation
+    https://www.word-grabber.com/word-trivia/scrabble-luck
+    *   'The blank is worth about 30 points to a good player, each S about 10.
+        The Q is a burden to whichever player receives it, effectively serving as a 5 point penalty for having to deal with it due to its effect in reducing bingo opportunities, needing either a U or a blank for a chance at a bingo and a 50-point bonus.
+        The J is essentially neutral point-wise.
+        The X and the Z are each worth about 3-5 extra points to the player who receives them. Their difficulty in playing in bingos is mitigated by their usefulness in other short words.'
+
+    * include common suffixes/prefixes
+        'ing'
+        'er'
+
+
+    Command line args
+
+11th Feb:
+    Moved Trie node class into trie.py
+    Added command line args to lexicon and for go first
+
+    Thoughts / Ideas:
+    Quantify first move advantage
+
+12th Feb:
+    Started working on screen reader for wwf.
+    managed to get images of all tiles in rack.
+    Need to get images of all tiles for reference (don't use screenshots, use original images)
+    Need to compare screenshots to references
+    Build board and rack from results.
+
+
+13th Feb:
+    Downloaded board and split into tiles
+    Found new package openCV.
+    Will probably try to work with all images in memory and use openCV throughout
+        Can selenium screenshot be taken in memory?
+    Some inconsistencies:
+        White lettering for newest words
+            Replace white with black
+                https://pythonprogramming.net/color-filter-python-opencv-tutorial/
+        Transparency for tiles
+            Can see Centre / DW / TW underneath
+        Different shapes for tiles at different points of adjacency
+            i.e. curved tiles and joined tiles
+        Reference tiles are proving difficult to acquire, may take some time.
+            Should in theory only take one game play through.
+        With inconsistencies and without a FULL set of reference tiles identifying wildcards could prove challenging
+        Full set includes all letters with and without wildcards on every background tiles
+        26 (letters) * 2 (wc) * 5 (tiles) * 2 (colours) = 520 images
+
+
+    14th Feb:
+    Getting all reference images almost impossible due to red point at bottom right of tile.
+    Solutions:
+        Crop images to left of red point tiles and area where curvature doesn't matter
+        Scan top right portion of tile and look for any black for WC.
+    Found this interesting article about some next level cheating
+    https://littlemaninmyhead.wordpress.com/2016/04/09/words-with-friends-trusts-the-clients-a-little-too-much/
+
+    15th Feb:
+    Replaced PIL with openCV
+    Removed screenshot
+        For rack can just use base64 strings from background image urls
+        For board can get b64 string directly using js
+    Use waitkey for imshow
+
+    Will store references as b64 strings.
+        For rack compare directly
+        For board may be able to compare directly for letter values after crop
+        For wc, black value top-right
+    Need to identify tile locations perfectly to be able to compare directly.
+        See closest multiples of 11 for potential paddings?
+    Need to replace white with black perfectly.
+    Need to identify start of red region consistently across images.
+
+    May not need to consider all tiles every turn but may not be significantly
+    more intensive to do so and could be significantly more convenient.
+
+    Use past games to get all board tiles.
+    What will b64 be like for blank tile?
+    are b64 rack strings different on your turn vs opponents turn?
+
+    16th Feb
+    b64 rack strings are the same on your opponents turn
+    red last_score tile is it's own element, not included in image.
+    white letterings tiles are not perfectly white
+    transparency of tiles means exact comparisons cannot be made for board
+    will need to use structural similarity
+        Current strategy is to get all reference tiles on empty tiles
+        Replace white with black for all tiles, currently just 255 -> 0
+        may need to use a range & mask
+
+    16th Feb
+    Changed Board class, get anchors on initialisation
+
+    17th Feb
+    Added wildcard support for playInSelenium
+    Reader incorrectly identified a Q as a G
