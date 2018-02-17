@@ -22,19 +22,13 @@ def score(entry):
     for i in blank_places:
         old_lms.append(sq_list[i].lm)
         sq_list[i].lm = 0
-    # print(''.join([sq.value for sq in sq_list]), word)
-    # print(word, entry[1], entry[2], entry[3])
     hm = reduce(mul, [sq.wm for sq in sq_list], 1)
-    # print(hm)
     cross_score = sum([sq.wm *
                        (sq.cross_score + LETTERS[word[sq.x - x]][1] * sq.lm)
                        for sq in sq_list if sq.empty and sq.cross_score > 0])
-    # print(cross_score)
     hori_score = hm * sum([LETTERS[word[sq.x - x]][1] * sq.lm
                            for sq in sq_list])
-    # print(hori_score)
     emptys = sum(1 for sq in sq_list if sq.empty)
-    # print(emptys)
     score = cross_score + hori_score
     if emptys == 7:
         print('BINGO:', word, entry[1], entry[2], entry[3])
