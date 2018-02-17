@@ -1,24 +1,24 @@
 import cv2
 from base64 import b64decode
+import numpy as np
+import pickle
+from skimage.measure import compare_ssim as ssim
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-import numpy as np
-from skimage.measure import compare_ssim as ssim
 from Board import Board
-from unscrabble import score, legal_plays
-import pickle
-from lexicon import lexicon, LETTERS
+from unscrabble import legal_plays
+from lexicon import lexicon
 
 
-def get_rack(chro):
+def get_rack(driver):
     try:
-        letter_img_div = chro.find_element_by_id('wwf-letters')
+        letter_img_div = driver.find_element_by_id('wwf-letters')
     except NoSuchElementException:
-        wait_and_switch_frame('_2u_i', chro)
-        letter_img_div = chro.find_element_by_id('wwf-letters')
+        wait_and_switch_frame('_2u_i', driver)
+        letter_img_div = driver.find_element_by_id('wwf-letters')
     letter_images = letter_img_div.find_elements_by_tag_name('a')
     img_b64 = [im.find_element_by_xpath('./span/span')
                  .value_of_css_property('background-image')
@@ -48,13 +48,13 @@ def b64tocv2(stro):
     return img
 
 
-def canvas_b64(chro):
-    canvas = chro.find_element_by_id('wwf-renderer-canvas')
+def canvas_b64(driver):
+    canvas = driver.find_element_by_id('wwf-renderer-canvas')
     js = 'return arguments[0].toDataURL(\'image/png\').substring(21);'
-    return chro.execute_script(js, canvas)
+    return driver.execute_script(js, canvas)
 
 
-def get_board(chro):
+def get_board(driver):
     def split():
         imgwidth = im.shape[0]
         tile_size = int(imgwidth / 11)
@@ -62,7 +62,7 @@ def get_board(chro):
                  x * tile_size: (x + 1) * tile_size]
                 for x in range(0, 11)]
                 for y in range(0, 11)]
-    im = b64tocv2(canvas_b64(chro))
+    im = b64tocv2(canvas_b64(driver))
     tiles = split()
     tiles = [[tile[5: tile.shape[1] - 5, 5: tile.shape[0] - 5] for tile in row]
              for row in tiles]
@@ -96,7 +96,7 @@ def get_board(chro):
                    for t in row]
                    for row in board_string]
     for row in print_board:
-        print(' '.join(row)+'\n')
+        print(' '.join(row) + '\n')
     return board_string
 
 
