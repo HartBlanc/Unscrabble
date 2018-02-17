@@ -2,9 +2,10 @@ from Board import Board
 from lexicon import lexicon, LETTERS
 from functools import reduce
 from operator import mul
+from sys import argv
 
 
-def score(entry):
+def score(entry, board):
     word = entry[0]
     dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1]
                   if word[i + 1] == '.']
@@ -39,113 +40,79 @@ def score(entry):
     return score
 
 
-list_board = [
-             ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL'],
-             ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
-             ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
-             ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
-             ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
-             ['_', 'DW', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
-             ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
-             ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
-             ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
-             ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
-             ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL']
-]
-board = Board(list_board)
-print(board.transposed)
-go_first = True
-# rack = 'eetnboi'
-board.display()
-rack = input('rack e.g. abcdefg :').lower()
-all_plays = set()
-if go_first:
-    center = board.get_square(6, 6)
-    center.LeftPart('', my_trie.Root, 5, list(rack))
-    for x in center.legal_moves:
-        my_score = score(x)
-        if my_score > 0:
-            all_plays.add((my_score, x))
-    board.transpose()
-    center.LeftPart('', my_trie.Root, 5, list(rack))
-    for x in center.legal_moves:
-        my_score = score(x)
-        if my_score > 0:
-            all_plays.add((my_score, x))
-    board.transpose()
-    all_plays = list(all_plays)
-    all_plays.sort(key=lambda x: x[0], reverse=True)
-    print('Top ten plays: ', all_plays[0:10])
+def legal_plays(board, rack, lexicon):
+    def limit(anchor):
+        fla = anchor.first_left_anchor()
+        if fla is None:
+            return anchor.x - 1
+        else:
+            return anchor.x - fla.x - 1
 
-    best_play = all_plays[0]
-    print('\n', 'BEST PLAY:', best_play, '\n')
-    placed = input('placed e.g. \'word\', \'Vertical\', 1, 2: ')
-while True:
-    try:
-        eval('board.place({})'.format(placed))
-        break
-    except:
-        print('try again')
-    board.display()
-while True:
-    try:
-        op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
-        eval('board.place({})'.format(op_placed))
-        break
-    except:
-        print('try again')
-    board.display()
-
-
-while True:
+    def get_plays(all_plays):
+        for sq in board.anchors:
+            sq.LeftPart('', lexicon.Root, limit(sq), list(rack))
+            for x in sq.legal_moves:
+                m_score = score(x, board)
+                if m_score > 0:
+                    all_plays.add((m_score, x))
     all_plays = set()
-    rack = input('rack e.g. abcdefg :').lower()
-    print(board.transposed)
-    for sq in board.anchors:
-        fla = sq.first_left_anchor()
-        if fla is None:
-            limit = sq.x - 1
-        else:
-            limit = sq.x - fla.x - 1
-        sq.LeftPart('', my_trie.Root, limit, list(rack))
-        for x in sq.legal_moves:
-            if score(x) > 0:
-                all_plays.add((score(x), x))
-
+    get_plays(all_plays)
     board.transpose()
-    print(board.transposed)
+    get_plays(all_plays)
+    return sorted(all_plays, key=lambda x: x[0], reverse=True)
+
+
+if __name__ == '__main__':
+    list_board = [
+                 ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL'],
+                 ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
+                 ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', '_'],
+                 ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
+                 ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
+                 ['_', 'DW', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+                 ['_', '_', 'DL', '_', '_', '_', '_', '_', 'DL', '_', '_'],
+                 ['_', '_', '_', 'TL', '_', '_', '_', 'TL', '_', '_', '_'],
+                 ['TW', '_', 'TL', '_', 'DL', '_', 'DL', '_', 'TL', '_', 'TW'],
+                 ['_', 'DW', '_', '_', '_', 'DW', '_', '_', '_', 'DW', '_'],
+                 ['TL', '_', 'TW', '_', '_', '_', '_', '_', 'TW', '_', 'TL']
+    ]
+    board = Board(list_board)
     board.display()
-    for sq in board.anchors:
-        fla = sq.first_left_anchor()
-        if fla is None:
-            limit = sq.x - 1
-        else:
-            limit = sq.x - fla.x - 1
-        sq.LeftPart('', my_trie.Root, limit, list(rack))
-        for x in sq.legal_moves:
-            my_score = score(x)
-            if my_score > 0:
-                all_plays.add((my_score, x))
-    board.transpose()
-    all_plays = list(all_plays)
-    all_plays.sort(key=lambda x: x[0], reverse=True)
-    print('Top ten plays: ', all_plays[0:10])
 
-    best_play = all_plays[0]
-    print('\n', 'BEST PLAY:', best_play, '\n')
+    if len(argv) > 1 and argv[1] == 'first':
+        rack = input('rack e.g. abcdefg :').lower()
+        all_plays = legal_plays(board, rack, lexicon)
+        board.transpose()
+        print('Top ten plays: ', all_plays[0:10])
+        print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
+        placed = input('placed e.g. \'word\', \'Vertical\', 1, 2: ')
+        while True:
+            try:
+                eval('board.place({})'.format(placed))
+                break
+            except Exception:
+                print('try again')
+        board.display()
+
     while True:
-        try:
-            placed = input('placed e.g. \'word\', \'Vertical\' , 1, 2: ')
-            eval('board.place({})'.format(placed))
-            break
-        except:
-            print('try again')
-    board.display()
-while True:
-    try:
-        op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
-        eval('board.place({})'.format(op_placed))
-        break
-    except:
-        print('try again')
-    board.display()
+        rack = input('rack e.g. abcdefg :').lower()
+        while True:
+            try:
+                op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
+                eval('board.place({})'.format(op_placed))
+                break
+            except Exception:
+                print('try again')
+        board.display()
+        all_plays = legal_plays(board, rack, lexicon)
+        board.transpose()
+        print('Top ten plays: ', all_plays[0:10])
+        print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
+        while True:
+            try:
+                placed = input('placed e.g. \'word\', \'Vertical\' , 1, 2: ')
+                eval('board.place({})'.format(placed))
+                break
+            except Exception:
+                print('try again')
+        board.display()
