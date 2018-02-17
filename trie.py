@@ -61,4 +61,4 @@ class Trie:
                     t_node.next_nodes[word[-1]].terminal = False
             # DELETED WORD HAS PREFIX
             else:
-                del d_node[0].next_nodes[char]
+                del d_node[0].next_nodes[d_node[1]]
