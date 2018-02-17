@@ -97,19 +97,6 @@ while True:
     board.display()
 
 
-# board.place('aahed', True, 2, 6, [5, ])
-# board.place('shiv', False, 4, 5, [])
-# board.place('almes', True, 1, 9, [])
-# board.place('mux', False, 3, 9, [])
-# board.place('ayin', True, 2, 7, [])
-# board.place('rex', True, 1, 11, [])
-# board.place('foetid', False, 6, 1, [])
-# board.place('before', True, 4, 1, [])
-# board.place('pinweed', True, 1, 3, [5])
-# board.place('zeps', False, 1, 1, [])
-# board.place('ikat', True, 5, 10, [])
-# board.place('golds', True, 7, 11, [])
-# board.display()
 while True:
     all_plays = set()
     rack = input('rack e.g. abcdefg :').lower()
