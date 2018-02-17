@@ -2,7 +2,7 @@ import cv2
 from base64 import b64decode
 import numpy as np
 import pickle
-from skimage.measure import compare_ssim as ssim
+from skimage.measure import compare_mse as mse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -30,8 +30,8 @@ def get_rack(driver):
 
 
 def best_match(tile, tile_dict):
-    ssimD = {k: ssim(tile, v) for k, v in tile_dict.items()}
-    return max(ssimD, key=ssimD.get)
+    ssimD = {k: mse(tile, v) for k, v in tile_dict.items()}
+    return min(ssimD, key=ssimD.get)
 
 
 def wait_and_switch_frame(my_class, driver):
