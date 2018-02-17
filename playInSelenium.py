@@ -107,17 +107,20 @@ def get_board(driver):
 
 
 if __name__ == '__main__':
-    options = webdriver.ChromeOptions()
-    chro = webdriver.Chrome(chrome_options=options)
-    chro.maximize_window()
-    chro.get('https://www.messenger.com/')
-    if input('Press enter when it\'s your turn or q to quit ') == 'q':
-        quit()
-    wait_and_switch_frame('_2u_i', chro)
+    try:
+        options = webdriver.ChromeOptions()
+        chro = webdriver.Chrome(chrome_options=options)
+        chro.maximize_window()
+        chro.get('https://www.messenger.com/')
+        if input('Press enter when it\'s your turn or q to quit ') == 'q':
+            quit()
+        wait_and_switch_frame('_2u_i', chro)
 
-    with open('board.txt', 'r') as f:
-        if canvas_b64(chro) == f.read():
+        with open('board.txt', 'r') as f:
+            ref_canvas = f.read()
+        if canvas_b64(chro) == ref_canvas:
             rack = get_rack(chro)
+            print('rack:', rack)
             board = Board(get_board(chro))
             all_plays = legal_plays(board, rack, lexicon)
             print('Top ten plays: ', all_plays[0:10])
@@ -126,13 +129,15 @@ if __name__ == '__main__':
             if input('Press enter when it\'s your turn or q to quit ') == 'q':
                 quit()
 
-    while True:
-        rack = get_rack(chro)
-        print(rack)
-        board = Board(get_board(chro))
-        all_plays = legal_plays(board, rack, lexicon)
-        print('Top ten plays: ', all_plays[0:10])
-        best_play = all_plays[0:1]
-        print('\n', 'BEST PLAY:', best_play, '\n')
-        if input('Press enter when it\'s your turn or q to quit ') == 'q':
-            quit()
+        while True:
+            rack = get_rack(chro)
+            print('rack:', rack)
+            board = Board(get_board(chro))
+            all_plays = legal_plays(board, rack, lexicon)
+            print('Top ten plays: ', all_plays[0:10])
+            best_play = all_plays[0:1]
+            print('\n', 'BEST PLAY:', best_play, '\n')
+            if input('Press enter when it\'s your turn or q to quit ') == 'q':
+                quit()
+    finally:
+        chro.quit()
