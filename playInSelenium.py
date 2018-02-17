@@ -105,7 +105,8 @@ if __name__ == '__main__':
     chro = webdriver.Chrome(chrome_options=options)
     chro.maximize_window()
     chro.get('https://www.messenger.com/')
-    input('Press enter when it\'s your turn')
+    if input('Press enter when it\'s your turn or q to quit ') == 'q':
+        quit()
     wait_and_switch_frame('_2u_i', chro)
 
     with open('board.txt', 'r') as f:
@@ -116,7 +117,8 @@ if __name__ == '__main__':
             print('Top ten plays: ', all_plays[0:10])
             best_play = all_plays[0:1]
             print('\n', 'BEST PLAY:', best_play, '\n')
-            input('Press enter when it\'s your turn')
+            if input('Press enter when it\'s your turn or q to quit ') == 'q':
+                quit()
 
     while True:
         rack = get_rack(chro)
@@ -126,4 +128,5 @@ if __name__ == '__main__':
         print('Top ten plays: ', all_plays[0:10])
         best_play = all_plays[0:1]
         print('\n', 'BEST PLAY:', best_play, '\n')
-        input('Press enter when it\'s your turn')
+        if input('Press enter when it\'s your turn or q to quit ') == 'q':
+            quit()
