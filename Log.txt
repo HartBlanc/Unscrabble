@@ -4,8 +4,6 @@ Current Objectives:
     End game strategies where perfect information is available.
         Adversarial Search
     Profile and optimise
-    Implement wildcard reader and first turn detector for playInSelenium
-    Error catching so that can try again when there is an error
 
 
 
@@ -191,3 +189,5 @@ Thoughts / Ideas:
     17th Feb
     Added wildcard support for playInSelenium
     Reader incorrectly identified a Q as a G
+    Reader incorrectly identified a P as an F
+    Replaced ssim with mse which seems to be working better

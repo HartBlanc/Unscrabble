@@ -2,7 +2,6 @@ from Square import Square
 from itertools import chain
 
 
-
 class Board:
 
     wwf_board = [
@@ -55,7 +54,6 @@ class Board:
     def get_anchors(self):
         anchors = [sq for sq in chain.from_iterable(self.squares)
                    if sq.empty
-                   # and (sq.left is None or sq.left.empty)
                    and any(not adj.empty for adj in sq.real_adjacent)
                    ]
         # print([(sq.x, sq.y) for sq in anchors])
@@ -86,14 +84,12 @@ class Board:
         self.N = y + 1
 
     def get_square(self, x_val, y_val):
-        # square = [sq for sq in self.squares
-        #           if (sq.x, sq.y) == (x_val, y_val)]
-        # if square:
         if (1 <= x_val <= self.N) and (1 <= y_val <= self.N):
             return self.squares[y_val - 1][x_val - 1]
 
     def place(self, word, horizontal, x, y):
-        dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1] if word[i + 1] == '.']
+        dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1]
+                      if word[i + 1] == '.']
         blank_places = [i - j for j, i in enumerate(dot_places)]
         word = word.replace('.', '')
         if horizontal == 'Vertical':

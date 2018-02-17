@@ -5,12 +5,14 @@ alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
 class Square:
 
+    emptys = ('TW', '_', 'TL', 'DL', 'DW', 'CE')
+
     def __init__(self, value, x, y, board):
         self.value = value
         self.x = x
         self.y = y
         self.board = board
-        self.empty = True if value in ('TW', '_', 'TL', 'DL', 'DW', 'CE') else False
+        self.empty = True if value in self.emptys else False
         self.wm = self.word_multiplier()
         self.lm = self.letter_multiplier()
         self.value = value[0]
@@ -23,7 +25,6 @@ class Square:
         self.real_adjacents = tuple()
         self.legal_moves = set()
         self.anchor = False
-
 
     def first_left_anchor(self):
         current = self
@@ -62,11 +63,6 @@ class Square:
             return
         self.ExtendRight(PartialWord, N, self, limit, rack)
         if limit > 0:
-            # fla = self.first_left_anchor()
-            # if fla is None:
-            #     current = limit + 1
-            # else:
-            #     current = fla.x + limit
             for char in adj_nodes:
                 if char in rack:
                     rack.remove(char)
