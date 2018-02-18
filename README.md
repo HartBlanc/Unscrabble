@@ -40,6 +40,6 @@ ___
 ## Play in Facebook Messenger with Google Chrome and Selenium
 ___
   playInSelenium.py uses the computer vision library OpenCV to read the board and tile rack from the WordsWithFriends messenger app.
-  Simply run playInSelenium.py, login to facebook messenger in the google chrome window that opens and navigate to the game   you would like to pay.
+  Simply run playInSelenium.py, login to facebook messenger in the google chrome window that opens and navigate to the game   you would like to play.
 
 See log.txt for plans for future improvements
