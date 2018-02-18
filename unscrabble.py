@@ -5,7 +5,17 @@ from operator import mul
 from sys import argv
 
 
+def get_play(op):
+    if op:
+        placed = input('opponent placed e.g. \'word\', \'Vertical\', 1, 2: ')
     else:
+        placed = input('placed e.g. \'word\', \'Vertical\', 1, 2: ')
+    while True:
+        try:
+            eval('board.place({})'.format(placed))
+            break
+        except Exception:
+            print('try again')
 
 
 def legal_plays(board, rack, lexicon):
@@ -75,34 +85,16 @@ if __name__ == '__main__':
         board.transpose()
         print('Top ten plays: ', all_plays[0:10])
         print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
-        placed = input('placed e.g. \'word\', \'Vertical\', 1, 2: ')
-        while True:
-            try:
-                eval('board.place({})'.format(placed))
-                break
-            except Exception:
-                print('try again')
+        get_play(False)
         board.display()
 
     while True:
         rack = input('rack e.g. abcdefg :').lower()
-        while True:
-            try:
-                op_placed = input('opponent_placed e.g. \'word\', \'Vertical\', 1, 2: ')
-                eval('board.place({})'.format(op_placed))
-                break
-            except Exception:
-                print('try again')
+        get_play(True)
         board.display()
         all_plays = legal_plays(board, rack, lexicon)
         board.transpose()
         print('Top ten plays: ', all_plays[0:10])
         print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
-        while True:
-            try:
-                placed = input('placed e.g. \'word\', \'Vertical\' , 1, 2: ')
-                eval('board.place({})'.format(placed))
-                break
-            except Exception:
-                print('try again')
+        get_play(False)
         board.display()
