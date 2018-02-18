@@ -1,11 +1,15 @@
 Current Objectives:
-    dawg data structure
+    DAWG data structure
+    GADDAG data structure
+        C wrapper: https://gaddag.readthedocs.io/en/latest/
+        Pure python: https://pygaddag.readthedocs.io/en/latest/
+        I imagine C wrapper is faster, pure python has more convenient methods
     Rename first_empty_below etc. to last_occupied_below.
     End game strategies where perfect information is available.
         Adversarial Search
-    Profile and optimise
-
-
+    Add little logo to README
+    Make capitalisation consistent across files
+    Images/gifs to visualise anchors / cross set
 
 Pre 1st Feb:
     Created a viable functioning program without reading other peoples solutions
@@ -191,3 +195,11 @@ Thoughts / Ideas:
     Reader incorrectly identified a Q as a G
     Reader incorrectly identified a P as an F
     Replaced ssim with mse which seems to be working better
+    Improved get_square method
+    Added colourful board display
+    Profiling shows that trie traversal time is quite significant
+
+    18th Feb
+    Created Gif using Gif Brewery 3
+    Found a faster algorithm for move generation:
+        http://ericsink.com/downloads/faster-scrabble-gordon.pdf
