@@ -31,7 +31,7 @@ ___
 
 ## Lexicon
 ___
-  The Original Lexicon used is the Enhance North American Baseline Lexicon ([ENABLE] (https://code.google.com/archive/p/dotnetperls-controls/downloads)) 
+  The Original Lexicon used is the Enhance North American Baseline Lexicon ([ENABLE](https://code.google.com/archive/p/dotnetperls-controls/downloads)) 
   The lexicon is adjusted whenever previously unencountered words are found.
   The lexicon is currently stored in a trie data structure. This means lookups are O(k) instead of O(N).
   Where N is the size of the lexicon and and k the length of the word.
