@@ -29,10 +29,11 @@ def legal_plays(board, rack, lexicon):
     def get_plays(all_plays):
         for sq in board.anchors:
             sq.LeftPart('', lexicon.Root, limit(sq), list(rack))
-            for x in sq.legal_moves:
-                m_score = score(x, board)
+            for m in sq.legal_moves:
+                m_score = score(m)
                 if m_score > 0:
-                    all_plays.add((m_score, x))
+                    all_plays.add((m_score, m))
+
     def score(move):
         word = move[0]
         dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1]
