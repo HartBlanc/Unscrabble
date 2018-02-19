@@ -1,16 +1,24 @@
 import pickle
 from sys import argv
+from collections import Counter
 
 
 
 LETTERS = {
-    '.': (2, 0), 'a': (9, 1), 'b': (2, 4), 'c': (2, 4), 'd': (5, 2),
-    'e': (13, 1), 'f': (2, 4), 'g': (3, 3), 'h': (4, 3), 'i': (8, 1),
-    'j': (1, 10), 'k': (1, 5), 'l': (4, 2), 'm': (2, 4), 'n': (5, 2),
-    'o': (8, 1), 'p': (2, 4), 'q': (1, 10), 'r': (6, 1), 's': (5, 1),
-    't': (7, 1), 'u': (4, 2), 'v': (2, 5), 'w': (2, 4), 'x': (1, 8),
-    'y': (2, 3), 'z': (1, 10),
+    '.': (2, 0), 'a': (5, 1), 'b': (1, 4), 'c': (1, 4), 'd': (2, 2),
+    'e': (7, 1), 'f': (1, 4), 'g': (1, 3), 'h': (1, 3), 'i': (4, 1),
+    'j': (1, 10), 'k': (1, 5), 'l': (2, 2), 'm': (1, 4), 'n': (2, 2),
+    'o': (4, 1), 'p': (1, 4), 'q': (1, 10), 'r': (2, 1), 's': (4, 1),
+    't': (2, 1), 'u': (1, 2), 'v': (1, 5), 'w': (1, 4), 'x': (1, 8),
+    'y': (1, 3), 'z': (1, 10)
 }
+
+def wildcards(word):
+    return sum([Counter(word)[char] - LETTERS[char][0] for char in word
+                if Counter(word)[char] > LETTERS[char][0]])
+
+
+
 
 if (len(argv) > 1 and argv[1] != 'build') or len(argv) <= 1:
     with open('./resources/lexi.pkl', "rb") as f:
@@ -31,7 +39,12 @@ if __name__ == '__main__':
             filename = argv[2]
             with open('./resources/{}'.format(filename)) as f:
                 content = f.readlines()
-                all_words = [x.strip() for x in content if len(x) <= 11]
+                print(len(content))
+                all_words = [w.strip() for w in content if len(w) <= 11]
+                print(len(all_words))
+                all_words = [w for w in all_words if wildcards(w) <= 2]
+                print(len(all_words))
+
             lexicon = Trie(all_words)
             if all([lexicon.contains(word) for word in all_words]):
                 print("Successfully constructed lexicon trie")
