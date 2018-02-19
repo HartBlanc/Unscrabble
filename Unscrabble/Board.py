@@ -1,5 +1,6 @@
 from Square import Square
 from itertools import chain
+from colorama import Back, Style
 
 
 class Board:
@@ -20,12 +21,24 @@ class Board:
 
     def __init__(self, build_list=wwf_board):
         self.build_squares(build_list)
-        self.build_lines()
         self.direction_relations()
         self.transposed = False
         self.get_anchors()
         for sq in chain.from_iterable(self.squares):
             sq.get_cross_set()
+
+    def __str__(self):
+        str_board = [['|{}|'.format(sq.value) if len(sq.value) == 2
+                        else '|__|' if sq.value == '_'
+                        else '|{} |'.format(sq.value)
+                       for sq in row]
+                       for row in self.squares]
+        str_board = [[Style.BRIGHT + Back.YELLOW + p_sq.upper() + Style.RESET_ALL
+                        if p_sq[1].islower()
+                        else p_sq
+                        for p_sq in row]
+                       for row in str_board]
+        return '\n'+'\n\n'.join([' '.join(row) for row in str_board])+'\n'
 
     def transpose(self):
         for sq in chain.from_iterable(self.squares):
@@ -38,7 +51,6 @@ class Board:
         self.direction_relations()
         for sq in chain.from_iterable(self.squares):
             sq.get_cross_set()
-        self.build_lines()
         self.get_anchors()
 
     def direction_relations(self):
@@ -61,17 +73,6 @@ class Board:
         for sq in chain.from_iterable(self.squares):
             sq.anchor = True if sq in self.anchors else False
 
-    def build_lines(self):
-        self.lines = []
-        for y in range(1, self.N + 1):
-            line = ''
-            for x in range(1, self.N + 1):
-                sq = self.get_square(x, y)
-                if sq.empty:
-                    line += '_'
-                else:
-                    line += sq.value
-            self.lines.append(line)
 
     def build_squares(self, build_list):
         self.squares = []
@@ -125,10 +126,3 @@ class Board:
         if not horizontal:
             self.transpose()
         self.get_anchors()
-        self.build_lines()
-
-    def display(self):
-        print('***********')
-        for line in self.lines:
-            print(line)
-        print('***********')

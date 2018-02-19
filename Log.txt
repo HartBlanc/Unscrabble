@@ -205,3 +205,9 @@ Thoughts / Ideas:
     filtered dictionary based on letter frequencies (frequency plus 2 for each tile)
     Found a faster algorithm for move generation:
         http://ericsink.com/downloads/faster-scrabble-gordon.pdf
+    19th Feb
+    Added string methods for board and square
+    Ideas
+    Could reduce wwf.txt according to filters
+    Make board reader parse all words and add to lexicon
+        After doing this remove the old method

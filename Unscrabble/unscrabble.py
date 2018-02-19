@@ -78,7 +78,7 @@ def legal_plays(board, rack, lexicon):
 if __name__ == '__main__':
 
     board = Board()
-    board.display()
+    print(board)
 
     if len(argv) > 1 and argv[1] == 'first':
         rack = input('rack e.g. abcdefg :').lower()
@@ -87,15 +87,15 @@ if __name__ == '__main__':
         print('Top ten plays: ', all_plays[0:10])
         print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
         get_play(False)
-        board.display()
+        print(board)
 
     while True:
         rack = input('rack e.g. abcdefg :').lower()
         get_play(True)
-        board.display()
+        print(board)
         all_plays = legal_plays(board, rack, lexicon)
         board.transpose()
         print('Top ten plays: ', all_plays[0:10])
         print('\n', 'BEST PLAY:', all_plays[0:1], '\n')
         get_play(False)
-        board.display()
+        print(board)

@@ -11,7 +11,6 @@ from selenium.common.exceptions import NoSuchElementException
 from Board import Board
 from unscrabble import legal_plays
 from lexicon import lexicon
-from colorama import Back, Style
 
 
 def get_rack(driver):
@@ -92,18 +91,6 @@ def get_board(driver):
         for j, key in enumerate(row):
             if bc[i][j] < 8 and key not in ('TL', 'DL', 'DW', 'TW', '_', 'CE'):
                 board_string[i][j] = key + '.'
-    print_board = [['|{}|'.format(t) if len(t) == 2
-                    else '|__|' if t == '_'
-                    else '|{} |'.format(t)
-                   for t in row]
-                   for row in board_string]
-    print_board = [[Style.BRIGHT + Back.YELLOW + x.upper() + Style.RESET_ALL
-                    if x[1].islower()
-                    else x
-                    for x in row]
-                   for row in print_board]
-    for row in print_board:
-        print(' '.join(row) + '\n')
     return board_string
 
 
@@ -123,6 +110,7 @@ if __name__ == '__main__':
             rack = get_rack(chro)
             print('rack:', rack)
             board = Board(get_board(chro))
+            print(board)
             all_plays = legal_plays(board, rack, lexicon)
             print('Top ten plays: ', all_plays[0:10])
             best_play = all_plays[0:1]
@@ -134,6 +122,7 @@ if __name__ == '__main__':
             rack = get_rack(chro)
             print('rack:', rack)
             board = Board(get_board(chro))
+            print(board)
             all_plays = legal_plays(board, rack, lexicon)
             print('Top ten plays: ', all_plays[0:10])
             best_play = all_plays[0:1]
