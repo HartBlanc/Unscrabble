@@ -89,9 +89,9 @@ class Board:
             return self.squares[y_val - 1][x_val - 1]
 
     def place(self, word, horizontal, x, y):
-        dot_places = [i for i, letter in list(enumerate(word))[:len(word) - 1]
-                      if word[i + 1] == '.']
-        blank_places = [i - j for j, i in enumerate(dot_places)]
+        dot_places = (i for i, letter in enumerate(word)[:len(word) - 1]
+                      if word[i + 1] == '.')
+        blank_places = {i - j for j, i in enumerate(dot_places)}
         word = word.replace('.', '')
         if horizontal == 'Vertical':
             horizontal = False
@@ -105,12 +105,10 @@ class Board:
         for i, letter in enumerate(word):
             sq = self.get_square(x + i, y)
             if sq.empty:
-                sq.value = letter
+                sq.value = letter + '.' if i in blank_places else letter
                 sq.empty = False
                 sq.wm = 1
-                sq.lm = sq.letter_multiplier()
-                if i in blank_places:
-                    sq.lm = 0
+                sq.lm = 0 if i in blank_places else 1
                 for adj in (sq.first_empty_above().above,
                             sq.first_empty_below().below):
                     if adj is not None:

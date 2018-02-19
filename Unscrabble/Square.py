@@ -15,7 +15,6 @@ class Square:
         self.empty = True if value in self.emptys else False
         self.wm = self.word_multiplier()
         self.lm = self.letter_multiplier()
-        self.value = value[0]
         self.cross_set = set()
         self.left = None
         self.right = None
@@ -25,6 +24,9 @@ class Square:
         self.real_adjacents = tuple()
         self.legal_moves = set()
         self.anchor = False
+
+    def __str__(self):
+        return 'x:{}, y:{} , value:{}'.format(self.x, self.y, self.value)
 
     def first_left_anchor(self):
         current = self
@@ -121,7 +123,7 @@ class Square:
                     rack.append('.')
 
         else:
-            char = sq.value
+            char = sq.value[0]
             if char in adj_nodes:
                 # rack stays the same
                 self.ExtendRight(PartialWord + char, adj_nodes[char],
@@ -196,13 +198,13 @@ class Square:
         max_y = below.y
         sq_list_up = [self.board.get_square(self.x, y_val)
                       for y_val in range(min_y, self.y)]
-        prefix = ''.join([sq.value for sq in sq_list_up])
-        prefix_score = sum([LETTERS[sq.value][1] * sq.lm
+        prefix = ''.join([sq.value[0] for sq in sq_list_up])
+        prefix_score = sum([LETTERS[sq.value[0]][1] * sq.lm
                             for sq in sq_list_up])
         sq_list_down = [self.board.get_square(self.x, y_val)
                         for y_val in range(self.y + 1, max_y + 1)]
         suffix = ''.join([sq.value for sq in sq_list_down])
-        suffix_score = sum([LETTERS[sq.value][1] * sq.lm
+        suffix_score = sum([LETTERS[sq.value[0]][1] * sq.lm
                             for sq in sq_list_down])
         # print('gcs', 'pre:', prefix, 'suf:', suffix, self.x, self.y)
         word = '{}{}{}'
@@ -218,5 +220,5 @@ class Square:
         min_x = left.x
         sq_list = [self.board.get_square(x_val, self.y)
                    for x_val in range(min_x, self.x)]
-        prefix = ''.join([sq.value for sq in sq_list])
+        prefix = ''.join([sq.value[0] for sq in sq_list])
         return prefix
