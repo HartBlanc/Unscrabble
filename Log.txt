@@ -10,7 +10,9 @@ Current Objectives:
     Add little logo to README
     Make capitalisation consistent across files
     Images/gifs to visualise anchors / cross set
-    Replace lists with generators where possible
+    Reduce wwf.txt according to filters
+    Make board reader parse all words and add to lexicon
+        After doing this remove the old method
 
 Pre 1st Feb:
     Created a viable functioning program without reading other peoples solutions
