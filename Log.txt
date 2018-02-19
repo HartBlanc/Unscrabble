@@ -10,6 +10,7 @@ Current Objectives:
     Add little logo to README
     Make capitalisation consistent across files
     Images/gifs to visualise anchors / cross set
+    Replace lists with generators where possible
 
 Pre 1st Feb:
     Created a viable functioning program without reading other peoples solutions
@@ -201,5 +202,6 @@ Thoughts / Ideas:
 
     18th Feb
     Created Gif using Gif Brewery 3
+    filtered dictionary based on letter frequencies (frequency plus 2 for each tile)
     Found a faster algorithm for move generation:
         http://ericsink.com/downloads/faster-scrabble-gordon.pdf
