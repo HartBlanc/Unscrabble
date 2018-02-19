@@ -14,10 +14,9 @@ LETTERS = {
 }
 
 def wildcards(word):
-    return sum([Counter(word)[char] - LETTERS[char][0] for char in word
-                if Counter(word)[char] > LETTERS[char][0]])
-
-
+    Chars = Counter(word)
+    return sum((Chars[char] - LETTERS[char][0] for char in word
+                if Chars[char] > LETTERS[char][0]))
 
 
 if (len(argv) > 1 and argv[1] != 'build') or len(argv) <= 1:
@@ -39,11 +38,11 @@ if __name__ == '__main__':
             filename = argv[2]
             with open('./resources/{}'.format(filename)) as f:
                 content = f.readlines()
-                print(len(content))
-                all_words = [w.strip() for w in content if len(w) <= 11]
-                print(len(all_words))
-                all_words = [w for w in all_words if wildcards(w) <= 2]
-                print(len(all_words))
+                all_words = (w.strip() for w in content)
+                all_words = (w for w in all_words
+                             if len(w) <= 11
+                             and wildcards(w) <= LETTERS['.'][0]
+                             )
 
             lexicon = Trie(all_words)
             if all([lexicon.contains(word) for word in all_words]):
