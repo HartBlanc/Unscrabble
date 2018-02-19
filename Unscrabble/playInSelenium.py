@@ -30,8 +30,8 @@ def get_rack(driver):
 
 
 def best_match(tile, tile_dict):
-    ssimD = {k: mse(tile, v) for k, v in tile_dict.items()}
-    return min(ssimD, key=ssimD.get)
+    mseD = {k: mse(tile, v) for k, v in tile_dict.items()}
+    return min(mseD, key=mseD.get)
 
 
 def wait_and_switch_frame(my_class, driver):
