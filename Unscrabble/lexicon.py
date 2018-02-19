@@ -55,7 +55,7 @@ if __name__ == '__main__':
         elif argv[1] == 'del':
             for word in argv[2:]:
                 lexicon.delete(word)
-            if all([not lexicon.contains(word) for word in argv[2:]]):
+            if all((not lexicon.contains(word) for word in argv[2:])):
                 print("Successfully removed words from lexicon trie")
             else:
                 print("Some words not deleted from lexicon trie")
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         elif argv[1] == 'add':
             for word in argv[2:]:
                 lexicon.insert(word)
-            if all([lexicon.contains(word) for word in argv[2:]]):
+            if all((lexicon.contains(word) for word in argv[2:])):
                 print("Successfully added words to lexicon trie")
             else:
                 print("Some words not added to lexicon trie")

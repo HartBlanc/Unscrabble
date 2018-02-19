@@ -20,13 +20,13 @@ def get_rack(driver):
         wait_and_switch_frame('_2u_i', driver)
         letter_img_div = driver.find_element_by_id('wwf-letters')
     letter_images = letter_img_div.find_elements_by_tag_name('a')
-    img_b64 = [im.find_element_by_xpath('./span/span')
+    img_b64 = (im.find_element_by_xpath('./span/span')
                  .value_of_css_property('background-image')
                  .split(',')[1][:-2]
-               for im in letter_images if im.is_displayed()]
+               for im in letter_images if im.is_displayed())
     with open('./resources/rack.pkl', 'rb') as f:
         rack_dict = pickle.load(f)
-    return ''.join([rack_dict[b64] for b64 in img_b64])
+    return ''.join((rack_dict[b64] for b64 in img_b64))
 
 
 def best_match(tile, tile_dict):
