@@ -70,6 +70,7 @@ def get_board(driver):
     for row in tiles:
         bc_row = []
         for image in row:
+            # Replace white with black
             image[np.where((image == [255, 255, 255]).all(axis=2))] = [0, 0, 0]
             top_right = image[3:22, image.shape[0] - 20:image.shape[0]]
             black = np.array([0, 0, 0])
