@@ -1,7 +1,6 @@
 # Unscrabble
 ***
-  Automated Words with Friends and Scrabble playing program
-
+  Automated Words with Friends and Scrabble move generator
 
 ## Play in Facebook Messenger with Google Chrome and Selenium
 ___
